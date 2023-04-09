@@ -1,0 +1,27 @@
+create barebone server
+create barebone database
+create frontend display for basic chess game
+create client-server connection for onMove update
+implement frontend piece move actions (click, drag, etc.)
+store player details in database
+store finished games in database
+implement basic CRUD operations
+implement basic chess game logic
+add leaderboards
+add authentication
+add friends list
+add player profile description
+add chess engine
+create ELO rating system
+implement challenging friends to games
+add game history
+add piece levelup system (gain xp on various events)
+create variable size chessboard game variant
+create game variant with custom beginning setups created by the player
+create matchmaking system
+add ingame chat
+add board/pieces customisation
+implement logic for levelup abilities
+add ingame clock
+
+
