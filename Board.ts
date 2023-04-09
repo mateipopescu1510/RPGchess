@@ -1,3 +1,5 @@
+import { Piece } from './Piece'
+
 class Board {
     fen: String
     ROWS: number;
@@ -8,7 +10,6 @@ class Board {
     constructor(fen: String) {
         // convert from fen
         this.boardSetup = new Array<Piece>(this.ROWS * this.COLUMNS);
-        this.boardSetup[0] = new King(1, [1, 1]);
     }
 
 
