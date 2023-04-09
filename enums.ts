@@ -7,6 +7,12 @@ export enum Direction {
     PAWN,
 }
 
+export enum Side {
+    WHITE,
+    BLACK,
+    NONE
+}
+
 export enum PieceTypes {
     EMPTY,
     PAWN,
@@ -18,33 +24,29 @@ export enum PieceTypes {
 }
 
 export enum PieceAbilities {
+    //Generic abilities that any piece can have [100-199]
     SHIELD, //can take a hit
-}
 
-export enum PawnAbilites {
+    //Pawn abilities [200-299]
     SCOUT, // can advance twice in one turn
-}
 
-export enum KnightAbilities {
-    TIME_TRAVEL // can attack back one move in time
-}
+    //Knight abilities [300-399]
+    TIME_TRAVEL, // can attack back one move in time
 
-export enum BishopAbilities {
+    //Bishop abilities [400-499]
     SNIPER = 5, // can attack without moving
     CONVERT_ENEMY = 10, // can turn an enemy piece into a friendly piece, one time use
     COLOR_COMPLEX, // can change color complex, one time use
-}
 
-export enum RookAbilities {
+    //Rook abilities [500-599]
     TANK, // if two pieces are on the same line next to each other, they can both be captured
-}
 
-export enum QueenAbilities {
+    //Queen abilities [600-699]
     BECOME_KING, //becomes piece of interest, king doesn't matter anymore
-}
 
-export enum KingAbilities {
+    //King abilities [700-799]
     SKIP, // can skip a turn
     FRIENDLY_FIRE, // can capture friendly pieces
     BLITZKRIEG, // pawns can advance twice at the beginning of the game
 }
+

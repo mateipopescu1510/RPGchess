@@ -5,6 +5,7 @@ class Board {
     ROWS: number;
     COLUMNS: number;
     boardSetup: Array<Piece>;
+    lastMove: [number, number, Piece, Piece];
 
 
     constructor(fen: String) {
@@ -13,7 +14,7 @@ class Board {
     }
 
 
-    //"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
-    //"{8 8}/r[4a.3]n[2.1]6/.../.../..."
+    //"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    //"/r[102500501510]n[300]6/.../.../..." w
 
 }
