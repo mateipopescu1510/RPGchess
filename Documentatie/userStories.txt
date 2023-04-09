@@ -1,0 +1,12 @@
+As a regular chess player, I want a more diverse variant of the game so there are fewer draws and more strategies.
+As a regular chess player, I want to be able to choose my own starting pieces so I can use a playstyle  that suits me.
+As a competitive player, I want to log in so I can keep track of my ELO.
+As a competitive player, I want to see the top leaderboard so I know who I should learn from.
+As a player, I want a friends list so I can challenge my friends to a game.
+As a competitive player, I want to see my game history so I can review my past mistakes.
+As a player, I want to customize my profile so others can see information about my playstyle.
+As a casual player, I want the game to be web based, so it is easier to access and play.
+As a casual player, I want to be able to play unranked games, so there is less stress of losing ELO.
+As a competitive player, I want to be able to play with the computer so I can learn new strategies.
+
+
