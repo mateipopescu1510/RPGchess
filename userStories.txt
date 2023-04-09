@@ -1,4 +1,5 @@
 As a regular chess player, I want a more diverse variant of the game so there are fewer draws and more strategies.
+As a regular chess player, I want to be able to choose my own starting pieces so I can use a playstyle  that suits me.
 As a competitive player, I want to log in so I can keep track of my ELO.
 As a competitive player, I want to see the top leaderboard so I know who I should learn from.
 As a player, I want a friends list so I can challenge my friends to a game.
