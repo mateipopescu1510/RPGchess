@@ -1,4 +1,4 @@
-export const infiniteRange = -1;
+export const INFINITE_RANGE = -1;
 
 export enum Direction {
     LINE,
