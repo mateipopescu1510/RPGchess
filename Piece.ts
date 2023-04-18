@@ -39,8 +39,24 @@ export class Piece {
         return this.currentXP;
     }
 
-    addAbility(ability: PieceAbilities) {
-        if (!this.abilities.includes(ability))
-            this.abilities.push(ability);
+    setType(type: PieceTypes) {
+        this.type = type;
     }
+
+    getType(): PieceTypes {
+        return this.type;
+    }
+
+    setSide(side: Side) {
+        this.side = side;
+    }
+
+    getSide(): Side {
+        return this.side;
+    }
+
+    // addAbility(ability: PieceAbilities) {
+    // if (!this.abilities.includes(ability))
+    // this.abilities.push(ability);
+    // }
 }
