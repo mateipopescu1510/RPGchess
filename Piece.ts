@@ -1,13 +1,13 @@
 import { INFINITE_RANGE, Direction, Side, PieceTypes, PieceAbilities } from "./Enums";
 
 export class Piece {
-    type: PieceTypes;
-    side: Side;
-    level: number;
-    currentXP: number;
-    range: number[];
-    directions: Direction[];
-    abilities: PieceAbilities[];
+    private type: PieceTypes;
+    private side: Side;
+    private level: number;
+    private currentXP: number;
+    private range: number[];
+    private directions: Direction[];
+    private abilities: PieceAbilities[];
 
     constructor(type: PieceTypes = PieceTypes.EMPTY, side: Side = Side.NONE,
         level: number = 0, currentXP: number = 0,
@@ -21,6 +21,22 @@ export class Piece {
         this.range = range;
         this.directions = directions;
         this.abilities = abilities;
+    }
+
+    setDirections(directions: Direction[]) {
+        this.directions = directions;
+    }
+
+    getDirections(): Direction[] {
+        return this.directions;
+    }
+
+    setRange(range: number[]) {
+        this.range = range;
+    }
+
+    getRange(): number[] {
+        return this.range;
     }
 
     setLevel(level: number) {
@@ -54,6 +70,7 @@ export class Piece {
     getSide(): Side {
         return this.side;
     }
+
 
     // addAbility(ability: PieceAbilities) {
     // if (!this.abilities.includes(ability))

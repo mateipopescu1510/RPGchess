@@ -1,16 +1,16 @@
 export const INFINITE_RANGE = -1;
 
 export enum Direction {
-    LINE,
-    DIAGONAL,
-    L,
-    PAWN,
+    LINE = "LINE",
+    DIAGONAL = "DIAGONAL",
+    L = "L",
+    PAWN = "PAWN",
 }
 
 export enum Side {
-    WHITE,
-    BLACK,
-    NONE
+    WHITE = "WHITE",
+    BLACK = "BLACK",
+    NONE = "NONE"
 }
 
 export enum PieceTypes {
