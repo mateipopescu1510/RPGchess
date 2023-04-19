@@ -14,7 +14,7 @@ class Board {
     private ROWS: number;
     private COLUMNS: number;
     private boardSetup: Piece[][];
-    private lastMove: [[number, number], [number, number], Piece | null, Piece | null];//[from, to, piece that was moved, what it landed on]
+    private lastMove: [[number, number], [number, number], Piece | null, Piece | null]; //[from, to, piece that was moved, what it landed on]
 
 
     constructor(fen: String) {
@@ -30,7 +30,7 @@ class Board {
     }
 
 
-    private validMoves(line: number, column: number): Array<[number, number]> {
+    validMoves(line: number, column: number): Array<[number, number]> {
         let moves: Array<[number, number]> = [];
         let directions: Direction[] = this.boardSetup[line][column].getDirections();
         let ranges: number[] = this.boardSetup[line][column].getRange();
@@ -42,10 +42,13 @@ class Board {
                     for (let i = 1; i <= range; i++) {
                         if (line + i < this.ROWS)
                             moves.push([line + i, column]);
+
                         if (line - i >= 0)
                             moves.push([line - i, column]);
+
                         if (column + i < this.COLUMNS)
                             moves.push([line, column + i]);
+
                         if (column - i >= 0)
                             moves.push([line, column - i]);
                     }
@@ -56,22 +59,101 @@ class Board {
                     for (let i = 1; i <= range; i++) {
                         if (line + i < this.ROWS && column + i < this.COLUMNS)
                             moves.push([line + i, column + i]);
+
                         if (line - i >= 0 && column - i >= 0)
                             moves.push([line - i, column - i]);
+
                         if (line + i < this.ROWS && column - i >= 0)
                             moves.push([line + i, column - i]);
+
                         if (line - i >= 0 && column + i < this.COLUMNS)
                             moves.push([line - i, column + i]);
                     }
                     break;
                 }
+                case Direction.PAWN: {
+                    let side: Side = this.boardSetup[line][column].getSide();
+                    switch (side) {
+                        case Side.WHITE: {
+                            if (this.boardSetup[line - 1][column].getType() === PieceTypes.EMPTY)
+                                moves.push([line - 1, column]);
 
+                            if (line === 6 && this.boardSetup[line - 2][column].getType() === PieceTypes.EMPTY)
+                                moves.push([line - 2, column]);
+
+
+                            if (!(this.boardSetup[line - 1][column - 1].getType() === PieceTypes.EMPTY))
+                                moves.push([line - 1, column - 1]);
+
+                            if (!(this.boardSetup[line - 1][column + 1].getType() === PieceTypes.EMPTY))
+                                moves.push([line - 1, column + 1]);
+                            break;
+                        }
+                        case Side.BLACK: {
+                            if (this.boardSetup[line + 1][column].getType() === PieceTypes.EMPTY)
+                                moves.push([line + 1, column]);
+
+                            if (line === 6 && this.boardSetup[line + 2][column].getType() === PieceTypes.EMPTY) {
+                                moves.push([line + 2, column]);
+                            }
+
+                            if (!(this.boardSetup[line + 1][column - 1].getType() === PieceTypes.EMPTY))
+                                moves.push([line + 1, column - 1]);
+
+                            if (!(this.boardSetup[line + 1][column + 1].getType() === PieceTypes.EMPTY))
+                                moves.push([line + 1, column + 1]);
+                            break;
+                        }
+                        default: {
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case Direction.L: {
+                    /*
+                    .......
+                    ..x.x..
+                    .x...x.
+                    ...N...
+                    .x...x.
+                    ..x.x..
+                    .......
+                    */
+                    let lineMinus2 = line - 2 >= 0;
+                    let lineMinus1 = line - 1 >= 0;
+                    let linePlus2 = line + 2 < this.ROWS;
+                    let linePlus1 = line + 1 < this.ROWS;
+
+                    let columnMinus2 = column - 2 >= 0;
+                    let columnMinus1 = column - 1 >= 0;
+                    let columnPlus2 = column + 2 < this.COLUMNS;
+                    let columnPlus1 = column + 1 < this.COLUMNS;
+
+                    if (lineMinus2 && columnMinus1)
+                        moves.push([line - 2, column - 1]);
+                    if (lineMinus2 && columnPlus1)
+                        moves.push([line - 2, column + 1]);
+                    if (lineMinus1 && columnPlus2)
+                        moves.push([line - 1, column + 2]);
+                    if (linePlus1 && columnPlus2)
+                        moves.push([line + 1, column + 2]);
+                    if (linePlus2 && columnPlus1)
+                        moves.push([line + 2, column + 1]);
+                    if (linePlus2 && columnMinus1)
+                        moves.push([line + 2, column - 1]);
+                    if (linePlus1 && columnMinus2)
+                        moves.push([line + 1, column - 2]);
+                    if (lineMinus1 && columnMinus2)
+                        moves.push([line - 1, column - 2]);
+                }
             }
         }
-
-
         return moves;
-    }
+    }//make private after done with testing
+
+
+
 
     convertFen(fen: String) {
         fen.split("/").forEach((value, index) => {
@@ -169,12 +251,14 @@ class Board {
 
 }
 
-var board: Board = new Board("8 8/2q1k1R1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+var board: Board = new Board("8 8/1N6/8/8/4k3/8/8/8/8");
 
 
-for (let p of board.getBoard()[0]) {
+for (let p of board.getBoard()[3]) {
     console.log(p.getType(), p.getSide(), p.getDirections(), p.getRange());
 }
+
+console.log(board.validMoves(0, 1));
 
 
 
