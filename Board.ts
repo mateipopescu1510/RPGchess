@@ -1,5 +1,5 @@
 import { Direction, INFINITE_RANGE, PieceTypes, Side } from './Enums';
-import { Piece } from './Piece'
+import { oppositeSide, Piece, sameSide } from './Piece'
 
 function stringToPiece(piece: string): PieceTypes {
     for (let type in PieceTypes) {
@@ -30,78 +30,119 @@ class Board {
     }
 
 
-    validMoves(line: number, column: number): Array<[number, number]> {
+    validMoves(row: number, column: number): Array<[number, number]> {
         let moves: Array<[number, number]> = [];
-        let directions: Direction[] = this.boardSetup[line][column].getDirections();
-        let ranges: number[] = this.boardSetup[line][column].getRange();
+        let directions: Direction[] = this.boardSetup[row][column].getDirections();
+        let ranges: number[] = this.boardSetup[row][column].getRange();
 
         for (let index in directions) {
             switch (directions[index]) {
+
                 case Direction.LINE: {
                     let range: number = ranges[index] === INFINITE_RANGE ? Math.max(this.ROWS, this.COLUMNS) : ranges[index];
-                    for (let i = 1; i <= range; i++) {
-                        if (line + i < this.ROWS)
-                            moves.push([line + i, column]);
-
-                        if (line - i >= 0)
-                            moves.push([line - i, column]);
-
-                        if (column + i < this.COLUMNS)
-                            moves.push([line, column + i]);
-
-                        if (column - i >= 0)
-                            moves.push([line, column - i]);
+                    for (let i = 1; i <= range && row + i < this.ROWS; i++) {
+                        if (sameSide(this.boardSetup[row][column], this.boardSetup[row + i][column]))
+                            break;
+                        moves.push([row + i, column]);
+                        if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column]))
+                            break;
                     }
+
+                    for (let i = 1; i <= range && row - i >= 0; i++) {
+                        if (sameSide(this.boardSetup[row][column], this.boardSetup[row - i][column]))
+                            break;
+                        moves.push([row - i, column]);
+                        if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row - i][column]))
+                            break;
+                    }
+
+                    for (let i = 1; i <= range && column + i < this.COLUMNS; i++) {
+                        if (sameSide(this.boardSetup[row][column], this.boardSetup[row][column + i]))
+                            break;
+                        moves.push([row, column + i]);
+                        if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row][column + i]))
+                            break;
+                    }
+
+                    for (let i = 1; i <= range && column - i >= 0; i++) {
+                        if (sameSide(this.boardSetup[row][column], this.boardSetup[row][column - i]))
+                            break;
+                        moves.push([row, column - i]);
+                        if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row][column - i]))
+                            break;
+                    }
+
                     break;
                 }
+
                 case Direction.DIAGONAL: {
                     let range: number = ranges[index] === INFINITE_RANGE ? Math.max(this.ROWS, this.COLUMNS) : ranges[index];
-                    for (let i = 1; i <= range; i++) {
-                        if (line + i < this.ROWS && column + i < this.COLUMNS)
-                            moves.push([line + i, column + i]);
-
-                        if (line - i >= 0 && column - i >= 0)
-                            moves.push([line - i, column - i]);
-
-                        if (line + i < this.ROWS && column - i >= 0)
-                            moves.push([line + i, column - i]);
-
-                        if (line - i >= 0 && column + i < this.COLUMNS)
-                            moves.push([line - i, column + i]);
+                    for (let i = 1; i <= range && row + i < this.ROWS && column + i < this.COLUMNS; i++) {
+                        if (sameSide(this.boardSetup[row][column], this.boardSetup[row + i][column + i]))
+                            break;
+                        moves.push([row + i, column + i]);
+                        if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column + i]))
+                            break;
                     }
+
+                    for (let i = 1; i <= range && row - i >= 0 && column - i >= 0; i++) {
+                        if (sameSide(this.boardSetup[row][column], this.boardSetup[row - i][column - i]))
+                            break;
+                        moves.push([row - i, column - i]);
+                        if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row - i][column + i]))
+                            break;
+                    }
+
+                    for (let i = 1; i <= range && row + i < this.ROWS && column - i >= 0; i++) {
+                        if (sameSide(this.boardSetup[row][column], this.boardSetup[row + i][column - i]))
+                            break;
+                        moves.push([row + i, column - i]);
+                        if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column - i]))
+                            break;
+                    }
+
+                    for (let i = 1; i <= range && row + i >= 0 && column + i < this.COLUMNS; i++) {
+                        if (sameSide(this.boardSetup[row][column], this.boardSetup[row - i][column + i]))
+                            break;
+                        moves.push([row - i, column + i]);
+                        if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row - i][column + i]))
+                            break;
+                    }
+
                     break;
                 }
+
                 case Direction.PAWN: {
-                    let side: Side = this.boardSetup[line][column].getSide();
+                    let side: Side = this.boardSetup[row][column].getSide();
                     switch (side) {
                         case Side.WHITE: {
-                            if (this.boardSetup[line - 1][column].getType() === PieceTypes.EMPTY)
-                                moves.push([line - 1, column]);
+                            if (this.boardSetup[row - 1][column].getType() === PieceTypes.EMPTY)
+                                moves.push([row - 1, column]); //move one square in front if empty
 
-                            if (line === 6 && this.boardSetup[line - 2][column].getType() === PieceTypes.EMPTY)
-                                moves.push([line - 2, column]);
+                            if (row === 6 && this.boardSetup[row - 2][column].getType() === PieceTypes.EMPTY && this.boardSetup[row - 1][column].getType() === PieceTypes.EMPTY)
+                                moves.push([row - 2, column]); //move two squares in front on the starting square
 
+                            if (column - 1 >= 0 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row - 1][column - 1]))
+                                moves.push([row - 1, column - 1]); //check capture left
 
-                            if (!(this.boardSetup[line - 1][column - 1].getType() === PieceTypes.EMPTY))
-                                moves.push([line - 1, column - 1]);
+                            if (column + 1 < this.COLUMNS && oppositeSide(this.boardSetup[row][column], this.boardSetup[row - 1][column + 1]))
+                                moves.push([row - 1, column + 1]); //check capture right
 
-                            if (!(this.boardSetup[line - 1][column + 1].getType() === PieceTypes.EMPTY))
-                                moves.push([line - 1, column + 1]);
                             break;
                         }
                         case Side.BLACK: {
-                            if (this.boardSetup[line + 1][column].getType() === PieceTypes.EMPTY)
-                                moves.push([line + 1, column]);
+                            if (this.boardSetup[row + 1][column].getType() === PieceTypes.EMPTY)
+                                moves.push([row + 1, column]); //move one square in front if empty
 
-                            if (line === 6 && this.boardSetup[line + 2][column].getType() === PieceTypes.EMPTY) {
-                                moves.push([line + 2, column]);
-                            }
+                            if (row === 1 && this.boardSetup[row + 2][column].getType() === PieceTypes.EMPTY && this.boardSetup[row + 1][column].getType() === PieceTypes.EMPTY)
+                                moves.push([row + 2, column]); //move two squares in front on the starting square
 
-                            if (!(this.boardSetup[line + 1][column - 1].getType() === PieceTypes.EMPTY))
-                                moves.push([line + 1, column - 1]);
+                            if (column - 1 >= 0 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row + 1][column - 1]))
+                                moves.push([row + 1, column - 1]); //check capture right
 
-                            if (!(this.boardSetup[line + 1][column + 1].getType() === PieceTypes.EMPTY))
-                                moves.push([line + 1, column + 1]);
+                            if (column + 1 < this.COLUMNS && oppositeSide(this.boardSetup[row][column], this.boardSetup[row + 1][column + 1]))
+                                moves.push([row + 1, column + 1]); //check capture left
+
                             break;
                         }
                         default: {
@@ -110,6 +151,7 @@ class Board {
                     }
                     break;
                 }
+
                 case Direction.L: {
                     /*
                     .......
@@ -120,32 +162,45 @@ class Board {
                     ..x.x..
                     .......
                     */
-                    let lineMinus2 = line - 2 >= 0;
-                    let lineMinus1 = line - 1 >= 0;
-                    let linePlus2 = line + 2 < this.ROWS;
-                    let linePlus1 = line + 1 < this.ROWS;
+                    let rowMinus2 = row - 2 >= 0;
+                    let rowMinus1 = row - 1 >= 0;
+                    let rowPlus2 = row + 2 < this.ROWS;
+                    let rowPlus1 = row + 1 < this.ROWS;
 
                     let columnMinus2 = column - 2 >= 0;
                     let columnMinus1 = column - 1 >= 0;
                     let columnPlus2 = column + 2 < this.COLUMNS;
                     let columnPlus1 = column + 1 < this.COLUMNS;
 
-                    if (lineMinus2 && columnMinus1)
-                        moves.push([line - 2, column - 1]);
-                    if (lineMinus2 && columnPlus1)
-                        moves.push([line - 2, column + 1]);
-                    if (lineMinus1 && columnPlus2)
-                        moves.push([line - 1, column + 2]);
-                    if (linePlus1 && columnPlus2)
-                        moves.push([line + 1, column + 2]);
-                    if (linePlus2 && columnPlus1)
-                        moves.push([line + 2, column + 1]);
-                    if (linePlus2 && columnMinus1)
-                        moves.push([line + 2, column - 1]);
-                    if (linePlus1 && columnMinus2)
-                        moves.push([line + 1, column - 2]);
-                    if (lineMinus1 && columnMinus2)
-                        moves.push([line - 1, column - 2]);
+                    if (rowMinus2 && columnMinus1 && !sameSide(this.boardSetup[row][column], this.boardSetup[row - 2][column - 1]))
+                        moves.push([row - 2, column - 1]);
+
+                    if (rowMinus2 && columnPlus1 && !sameSide(this.boardSetup[row][column], this.boardSetup[row - 2][column + 1]))
+                        moves.push([row - 2, column + 1]);
+
+                    if (rowMinus1 && columnPlus2 && !sameSide(this.boardSetup[row][column], this.boardSetup[row - 1][column + 2]))
+                        moves.push([row - 1, column + 2]);
+
+                    if (rowPlus1 && columnPlus2 && !sameSide(this.boardSetup[row][column], this.boardSetup[row + 1][column + 2]))
+                        moves.push([row + 1, column + 2]);
+
+                    if (rowPlus2 && columnPlus1 && !sameSide(this.boardSetup[row][column], this.boardSetup[row + 2][column + 1]))
+                        moves.push([row + 2, column + 1]);
+
+                    if (rowPlus2 && columnMinus1 && !sameSide(this.boardSetup[row][column], this.boardSetup[row + 2][column - 1]))
+                        moves.push([row + 2, column - 1]);
+
+                    if (rowPlus1 && columnMinus2 && !sameSide(this.boardSetup[row][column], this.boardSetup[row + 1][column - 2]))
+                        moves.push([row + 1, column - 2]);
+
+                    if (rowMinus1 && columnMinus2 && !sameSide(this.boardSetup[row][column], this.boardSetup[row - 1][column - 2]))
+                        moves.push([row - 1, column - 2]);
+
+                    break;
+                }
+
+                default: {
+                    break;
                 }
             }
         }
@@ -231,7 +286,7 @@ class Board {
     }
 
     getFen(): string {
-        return "";
+        return ""; //TODO
     }
 
     getBoard(): Piece[][] {
@@ -251,14 +306,20 @@ class Board {
 
 }
 
-var board: Board = new Board("8 8/1N6/8/8/4k3/8/8/8/8");
+var board: Board = new Board("8 8/n7/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8");
 
 
-for (let p of board.getBoard()[3]) {
-    console.log(p.getType(), p.getSide(), p.getDirections(), p.getRange());
-}
+// for (let p of board.getBoard()[1]) {
+//     console.log(p.getType(), p.getSide(), p.getDirections(), p.getRange());
+// }
 
-console.log(board.validMoves(0, 1));
+console.log(board.validMoves(0, 0));
+console.log(board.validMoves(1, 2));
+console.log(board.validMoves(2, 1));
+console.log(board.validMoves(1, 5));
+console.log(board.validMoves(4, 3));
+console.log(board.validMoves(6, 1));
+console.log(board.validMoves(6, 2));
 
 
 

@@ -1,5 +1,17 @@
 import { INFINITE_RANGE, Direction, Side, PieceTypes, PieceAbilities } from "./Enums";
 
+export function oppositeSide(piece1: Piece, piece2: Piece): Boolean {
+    if (piece1.getSide() === Side.WHITE && piece2.getSide() === Side.BLACK)
+        return true;
+    if (piece1.getSide() === Side.BLACK && piece2.getSide() === Side.WHITE)
+        return true;
+    return false;
+}
+
+export function sameSide(piece1: Piece, piece2: Piece): Boolean {
+    return piece1.getSide() === piece2.getSide();
+}
+
 export class Piece {
     private type: PieceTypes;
     private side: Side;
