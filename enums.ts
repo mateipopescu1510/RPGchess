@@ -14,7 +14,7 @@ export enum Side {
 }
 
 export enum PieceTypes {
-    EMPTY = "#",
+    EMPTY = ".",
     PAWN = "p",
     BISHOP = "b",
     KNIGHT = "n",

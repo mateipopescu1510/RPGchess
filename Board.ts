@@ -22,13 +22,30 @@ class Board {
         this.lastMove = [[-1, -1], [-1, -1], null, null];
     }
 
-    movePiece(fromLine: number, fromColumn: number, toLine: number, toColumn: number): Boolean {
-        if (this.boardSetup[fromLine][fromColumn].getType() === PieceTypes.EMPTY)
+    movePiece([fromRow, fromColumn]: [number, number], [toRow, toColumn]: [number, number]): Boolean {
+        if (this.boardSetup[fromRow][fromColumn].getType() === PieceTypes.EMPTY)
             return false;
+
+        if (this.coordinateInList(this.validMoves(fromRow, fromColumn), [toRow, toColumn])) {
+            this.lastMove[0] = [fromRow, fromColumn];
+            this.lastMove[1] = [toRow, toColumn];
+            this.lastMove[2] = this.boardSetup[fromRow][fromColumn];
+            this.lastMove[3] = this.boardSetup[toRow][toColumn];
+
+            this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn];
+            this.boardSetup[fromRow][fromColumn] = new Piece();
+        }
 
         return true;
     }
 
+
+    coordinateInList(list: Array<[number, number]>, coordinate: [number, number]): Boolean {
+        for (let elem of list)
+            if (elem.toString() === coordinate.toString())
+                return true;
+        return false;
+    }
 
     validMoves(row: number, column: number): Array<[number, number]> {
         let moves: Array<[number, number]> = [];
@@ -307,26 +324,32 @@ class Board {
         return this.COLUMNS;
     }
 
+    getLastMove(): [[number, number], [number, number], Piece | null, Piece | null] {
+        return this.lastMove;
+    }
+
+    printBoard() {
+        for (let row of this.boardSetup) {
+            let rowString: string = "";
+            for (let piece of row)
+                rowString += piece.getSide() === Side.WHITE ? piece.getType().toString().toUpperCase() : piece.getType().toString();
+            console.log(rowString);
+        }
+    }
+
     //"8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     //"8 8/r[102500501510]n[300]6/w"
+    //"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
 
 }
 
-var board: Board = new Board("8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8");
+var board: Board = new Board("8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
 
-// for (let p of board.getBoard()[1]) {
-//     console.log(p.getType(), p.getSide(), p.getDirections(), p.getRange());
-// }
-
-console.log(board.validMoves(0, 0));
-console.log(board.validMoves(0, 6));
-console.log(board.validMoves(1, 2));
-console.log(board.validMoves(2, 1));
-console.log(board.validMoves(1, 5));
-console.log(board.validMoves(4, 3));
-console.log(board.validMoves(6, 1));
-console.log(board.validMoves(6, 2));
-
+board.printBoard();
+console.log(board.getLastMove());
+console.log(board.movePiece([7, 6], [5, 5]));
+board.printBoard();
+console.log(board.getLastMove());
 
 
