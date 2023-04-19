@@ -16,38 +16,34 @@ class Board {
     private boardSetup: Piece[][];
     private lastMove: [[number, number], [number, number], Piece | null, Piece | null]; //[from, to, piece that was moved, what it landed on]
 
-
     constructor(fen: String) {
         this.convertFen(fen);
         this.lastMove = [[-1, -1], [-1, -1], null, null];
     }
 
     movePiece([fromRow, fromColumn]: [number, number], [toRow, toColumn]: [number, number]): Boolean {
-        if (this.boardSetup[fromRow][fromColumn].getType() === PieceTypes.EMPTY)
+        if (this.boardSetup[fromRow][fromColumn].getType() === PieceTypes.EMPTY || !this.coordinateInList(this.validMoves([fromRow, fromColumn]), [toRow, toColumn]))
             return false;
 
-        if (this.coordinateInList(this.validMoves(fromRow, fromColumn), [toRow, toColumn])) {
-            this.lastMove[0] = [fromRow, fromColumn];
-            this.lastMove[1] = [toRow, toColumn];
-            this.lastMove[2] = this.boardSetup[fromRow][fromColumn];
-            this.lastMove[3] = this.boardSetup[toRow][toColumn];
+        this.lastMove[0] = [fromRow, fromColumn];
+        this.lastMove[1] = [toRow, toColumn];
+        this.lastMove[2] = this.boardSetup[fromRow][fromColumn];
+        this.lastMove[3] = this.boardSetup[toRow][toColumn];
 
-            this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn];
-            this.boardSetup[fromRow][fromColumn] = new Piece();
-        }
+        this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn];
+        this.boardSetup[fromRow][fromColumn] = new Piece();
 
         return true;
     }
 
-
-    coordinateInList(list: Array<[number, number]>, coordinate: [number, number]): Boolean {
+    private coordinateInList(list: Array<[number, number]>, coordinate: [number, number]): Boolean {
         for (let elem of list)
             if (elem.toString() === coordinate.toString())
                 return true;
         return false;
     }
 
-    validMoves(row: number, column: number): Array<[number, number]> {
+    private validMoves([row, column]: [number, number]): Array<[number, number]> {
         let moves: Array<[number, number]> = [];
         let directions: Direction[] = this.boardSetup[row][column].getDirections();
         let ranges: number[] = this.boardSetup[row][column].getRange();
@@ -228,12 +224,9 @@ class Board {
             }
         }
         return moves;
-    }//make private after done with testing
+    }
 
-
-
-
-    convertFen(fen: String) {
+    private convertFen(fen: String) {
         fen.split("/").forEach((value, index) => {
             if (index == 0) {
                 // information about board size, still have to add information about castling rights
@@ -329,6 +322,7 @@ class Board {
     }
 
     printBoard() {
+        //only for testing
         for (let row of this.boardSetup) {
             let rowString: string = "";
             for (let piece of row)
@@ -336,20 +330,19 @@ class Board {
             console.log(rowString);
         }
     }
-
-    //"8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-    //"8 8/r[102500501510]n[300]6/w"
-    //"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
-
 }
-
-var board: Board = new Board("8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+//"8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+//"8 8/r[102500501510]n[300]6/w"
+//"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
+var board: Board = new Board("8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8");
 
 
 board.printBoard();
 console.log(board.getLastMove());
-console.log(board.movePiece([7, 6], [5, 5]));
+
+console.log(board.movePiece([5, 1], [4, 2]));
 board.printBoard();
 console.log(board.getLastMove());
+
 
 
