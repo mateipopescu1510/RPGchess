@@ -116,6 +116,9 @@ class Board {
                     let side: Side = this.boardSetup[row][column].getSide();
                     switch (side) {
                         case Side.WHITE: {
+                            if (row === 0)
+                                break;
+
                             if (this.boardSetup[row - 1][column].getType() === PieceTypes.EMPTY)
                                 moves.push([row - 1, column]); //move one square in front if empty
 
@@ -131,6 +134,9 @@ class Board {
                             break;
                         }
                         case Side.BLACK: {
+                            if (row == this.ROWS - 1)
+                                break;
+
                             if (this.boardSetup[row + 1][column].getType() === PieceTypes.EMPTY)
                                 moves.push([row + 1, column]); //move one square in front if empty
 
@@ -306,7 +312,7 @@ class Board {
 
 }
 
-var board: Board = new Board("8 8/n7/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8");
+var board: Board = new Board("8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8");
 
 
 // for (let p of board.getBoard()[1]) {
@@ -314,6 +320,7 @@ var board: Board = new Board("8 8/n7/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8");
 // }
 
 console.log(board.validMoves(0, 0));
+console.log(board.validMoves(0, 6));
 console.log(board.validMoves(1, 2));
 console.log(board.validMoves(2, 1));
 console.log(board.validMoves(1, 5));
