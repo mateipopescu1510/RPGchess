@@ -24,16 +24,20 @@ export class Board {
 
     movePiece([fromRow, fromColumn]: [number, number], [toRow, toColumn]: [number, number]): Boolean {
         if (this.boardSetup[fromRow][fromColumn].getType() === PieceTypes.EMPTY || !this.coordinateInList(this.validMoves([fromRow, fromColumn]), [toRow, toColumn]))
-            return false; //do nothing if an empty square is moved or if the destination isn't in the valid moves
+            return false; //Do nothing if an empty square is moved or if the destination isn't in the valid moves
+
+        //TODO highlight the source and destination squares (and unhighlight the previous ones)
 
         this.lastMove[0] = [fromRow, fromColumn];
         this.lastMove[1] = [toRow, toColumn];
         this.lastMove[2] = this.boardSetup[fromRow][fromColumn];
         this.lastMove[3] = this.boardSetup[toRow][toColumn];
 
-        this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn]; //move the piece to the new square
+        this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn]; //Move the piece to the new square
         this.boardSetup[toRow][toColumn].incrementMoveCounter();
-        this.boardSetup[fromRow][fromColumn] = new Piece(); //create a new empty square where the piece was previously
+        this.boardSetup[fromRow][fromColumn] = new Piece(); //Create a new empty square where the piece was previously
+
+
 
         this.updateFen();
 

@@ -21,6 +21,7 @@ export class Piece {
     private directions: Direction[];
     private abilities: PieceAbilities[];
     private moveCounter: number;
+    private highlighted: Boolean;
 
     constructor(type: PieceTypes = PieceTypes.EMPTY, side: Side = Side.NONE,
         level: number = 0, currentXP: number = 0,
@@ -35,6 +36,7 @@ export class Piece {
         this.directions = directions;
         this.abilities = abilities;
         this.moveCounter = 0;
+        this.highlighted = false;
     }
 
     setDirections(directions: Direction[]) {
@@ -95,6 +97,18 @@ export class Piece {
 
     getMoveCounter(): number {
         return this.moveCounter;
+    }
+
+    highlightPiece() {
+        this.highlighted = true;
+    }
+
+    unhighlightPiece() {
+        this.highlighted = false;
+    }
+
+    getHighlight(): Boolean {
+        return this.highlighted;
     }
 
 
