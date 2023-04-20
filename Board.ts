@@ -10,13 +10,14 @@ function stringToPiece(piece: string): PieceTypes {
 }
 
 class Board {
-    private fen: String;
+    private fen: string;
     private ROWS: number;
     private COLUMNS: number;
     private boardSetup: Piece[][];
     private lastMove: [[number, number], [number, number], Piece | null, Piece | null]; //[from, to, piece that was moved, what it landed on]
 
-    constructor(fen: String) {
+    constructor(fen: string) {
+        this.fen = fen;
         this.convertFen(fen);
         this.lastMove = [[-1, -1], [-1, -1], null, null];
     }
@@ -32,6 +33,8 @@ class Board {
 
         this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn];
         this.boardSetup[fromRow][fromColumn] = new Piece();
+
+        this.updateFen();
 
         return true;
     }
@@ -226,7 +229,7 @@ class Board {
         return moves;
     }
 
-    private convertFen(fen: String) {
+    private convertFen(fen: string) {
         fen.split("/").forEach((value, index) => {
             if (index == 0) {
                 // information about board size, still have to add information about castling rights
@@ -301,8 +304,32 @@ class Board {
         })
     }
 
+    private updateFen() {
+        let newFen: string = "";
+        this.fen.split("/").forEach((value, index) => {
+            if (index - 1 != this.lastMove[0][0] && index - 1 != this.lastMove[1][0])
+                newFen += value + "/";
+            else {
+                for (let piece of this.boardSetup[index - 1]) {
+                    if (piece.getType() != PieceTypes.EMPTY)
+                        newFen += piece.getSide() === Side.WHITE ? piece.getType().toUpperCase() : piece.getType();
+                    else {
+                        if (isNaN(Number(newFen.slice(-1))))
+                            newFen += "1";
+                        else {
+                            let next: string = (Number(newFen.slice(-1)) + 1).toString();
+                            newFen = newFen.slice(0, -1) + next;
+                        }
+                    }
+                }
+                newFen += "/";
+            }
+        })
+        this.fen = newFen.slice(0, -1);
+    }
+
     getFen(): string {
-        return ""; //TODO
+        return this.fen;
     }
 
     getBoard(): Piece[][] {
@@ -332,17 +359,18 @@ class Board {
     }
 }
 //"8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-//"8 8/r[102500501510]n[300]6/w"
+//"8 8/r[102500501510]n[300]6/w" -> fen notation concept for when abilities get implemented (each ability is a 3 digit number)
 //"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
-var board: Board = new Board("8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8");
+var board: Board = new Board("8 8/n5P1/2p2rr1/1P6/5k2/2QB4/1q6/1PP5/8");
 
 
 board.printBoard();
+console.log(board.getFen());
 console.log(board.getLastMove());
 
-console.log(board.movePiece([5, 1], [4, 2]));
+console.log(board.movePiece([4, 3], [1, 6]));
 board.printBoard();
+console.log(board.getFen());
 console.log(board.getLastMove());
-
 
 
