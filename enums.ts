@@ -1,4 +1,11 @@
 export const INFINITE_RANGE = -1;
+export const INFINITE_TIME = -1;
+export enum GameResult {
+    BLACK_WIN = -1,
+    DRAW = 0,
+    WHITE_WIN = 1,
+    IN_PROGRESS = 2
+}
 
 export enum Direction {
     LINE = "LINE",

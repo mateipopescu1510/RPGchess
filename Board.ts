@@ -1,7 +1,7 @@
 import { Direction, INFINITE_RANGE, PieceTypes, Side } from './Enums';
 import { oppositeSide, Piece, sameSide } from './Piece'
 
-function stringToPiece(piece: string): PieceTypes {
+export function stringToPiece(piece: string): PieceTypes {
     for (let type in PieceTypes) {
         if (PieceTypes[type] === piece)
             return PieceTypes[type];
@@ -9,7 +9,7 @@ function stringToPiece(piece: string): PieceTypes {
     return PieceTypes.EMPTY;
 }
 
-class Board {
+export class Board {
     private fen: string;
     private ROWS: number;
     private COLUMNS: number;
@@ -24,15 +24,16 @@ class Board {
 
     movePiece([fromRow, fromColumn]: [number, number], [toRow, toColumn]: [number, number]): Boolean {
         if (this.boardSetup[fromRow][fromColumn].getType() === PieceTypes.EMPTY || !this.coordinateInList(this.validMoves([fromRow, fromColumn]), [toRow, toColumn]))
-            return false;
+            return false; //do nothing if an empty square is moved or if the destination isn't in the valid moves
 
         this.lastMove[0] = [fromRow, fromColumn];
         this.lastMove[1] = [toRow, toColumn];
         this.lastMove[2] = this.boardSetup[fromRow][fromColumn];
         this.lastMove[3] = this.boardSetup[toRow][toColumn];
 
-        this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn];
-        this.boardSetup[fromRow][fromColumn] = new Piece();
+        this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn]; //move the piece to the new square
+        this.boardSetup[toRow][toColumn].incrementMoveCounter();
+        this.boardSetup[fromRow][fromColumn] = new Piece(); //create a new empty square where the piece was previously
 
         this.updateFen();
 
@@ -52,16 +53,18 @@ class Board {
         let ranges: number[] = this.boardSetup[row][column].getRange();
 
         for (let index in directions) {
+            //Do for every direction, for example, the king's directions are [LINE, DIAGONAL]. Every direction has a range associated, in this case, [1, 1].
             switch (directions[index]) {
 
                 case Direction.LINE: {
-                    let range: number = ranges[index] === INFINITE_RANGE ? Math.max(this.ROWS, this.COLUMNS) : ranges[index];
+                    //Check up, down, left, right with for loops
+                    let range: number = ranges[index] === INFINITE_RANGE ? Math.max(this.ROWS, this.COLUMNS) : ranges[index]; //Set the range to the size of the board if it's infinite
                     for (let i = 1; i <= range && row + i < this.ROWS; i++) {
                         if (sameSide(this.boardSetup[row][column], this.boardSetup[row + i][column]))
-                            break;
-                        moves.push([row + i, column]);
+                            break; //Stop checking in this direction if the target square is a piece of the same side (can't capture own pieces)
+                        moves.push([row + i, column]); //Otherwise, add the coordinate to the move list
                         if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column]))
-                            break;
+                            break; //If the target square is an enemy piece, add it to the list but break off afterwards (can't capture through other pieces (for now))
                     }
 
                     for (let i = 1; i <= range && row - i >= 0; i++) {
@@ -92,6 +95,7 @@ class Board {
                 }
 
                 case Direction.DIAGONAL: {
+                    //Same logic as with Direction.LINE, but diagonally
                     let range: number = ranges[index] === INFINITE_RANGE ? Math.max(this.ROWS, this.COLUMNS) : ranges[index];
                     for (let i = 1; i <= range && row + i < this.ROWS && column + i < this.COLUMNS; i++) {
                         if (sameSide(this.boardSetup[row][column], this.boardSetup[row + i][column + i]))
@@ -133,37 +137,37 @@ class Board {
                     switch (side) {
                         case Side.WHITE: {
                             if (row === 0)
-                                break;
+                                break; //If it reached the last row
 
                             if (this.boardSetup[row - 1][column].getType() === PieceTypes.EMPTY)
-                                moves.push([row - 1, column]); //move one square in front if empty
+                                moves.push([row - 1, column]); //Move one square in front if empty
 
                             if (row === 6 && this.boardSetup[row - 2][column].getType() === PieceTypes.EMPTY && this.boardSetup[row - 1][column].getType() === PieceTypes.EMPTY)
-                                moves.push([row - 2, column]); //move two squares in front on the starting square
+                                moves.push([row - 2, column]); //Move two squares in front on the starting square
 
                             if (column - 1 >= 0 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row - 1][column - 1]))
-                                moves.push([row - 1, column - 1]); //check capture left
+                                moves.push([row - 1, column - 1]); //Check capture left
 
                             if (column + 1 < this.COLUMNS && oppositeSide(this.boardSetup[row][column], this.boardSetup[row - 1][column + 1]))
-                                moves.push([row - 1, column + 1]); //check capture right
+                                moves.push([row - 1, column + 1]); //Check capture right
 
                             break;
                         }
                         case Side.BLACK: {
                             if (row == this.ROWS - 1)
-                                break;
+                                break; //If it reached the last row
 
                             if (this.boardSetup[row + 1][column].getType() === PieceTypes.EMPTY)
-                                moves.push([row + 1, column]); //move one square in front if empty
+                                moves.push([row + 1, column]); //Move one square in front if empty
 
                             if (row === 1 && this.boardSetup[row + 2][column].getType() === PieceTypes.EMPTY && this.boardSetup[row + 1][column].getType() === PieceTypes.EMPTY)
-                                moves.push([row + 2, column]); //move two squares in front on the starting square
+                                moves.push([row + 2, column]); //Move two squares in front on the starting square
 
                             if (column - 1 >= 0 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row + 1][column - 1]))
-                                moves.push([row + 1, column - 1]); //check capture right
+                                moves.push([row + 1, column - 1]); //Check capture right
 
                             if (column + 1 < this.COLUMNS && oppositeSide(this.boardSetup[row][column], this.boardSetup[row + 1][column + 1]))
-                                moves.push([row + 1, column + 1]); //check capture left
+                                moves.push([row + 1, column + 1]); //Check capture left
 
                             break;
                         }
@@ -184,6 +188,8 @@ class Board {
                     ..x.x..
                     .......
                     */
+
+                    //A lot of booleans to make the if's a little easier 
                     let rowMinus2 = row - 2 >= 0;
                     let rowMinus1 = row - 1 >= 0;
                     let rowPlus2 = row + 2 < this.ROWS;
@@ -194,6 +200,7 @@ class Board {
                     let columnPlus2 = column + 2 < this.COLUMNS;
                     let columnPlus1 = column + 1 < this.COLUMNS;
 
+                    //For every L direction, check if the target square is within bounds and if the target square isn't a friendly piece
                     if (rowMinus2 && columnMinus1 && !sameSide(this.boardSetup[row][column], this.boardSetup[row - 2][column - 1]))
                         moves.push([row - 2, column - 1]);
 
@@ -232,7 +239,7 @@ class Board {
     private convertFen(fen: string) {
         fen.split("/").forEach((value, index) => {
             if (index == 0) {
-                // information about board size, still have to add information about castling rights
+                //Information about board size, still have to add information about castling rights
                 let splitted = value.split(" ");
                 this.ROWS = Number(splitted[0]);
                 this.COLUMNS = Number(splitted[1]);
@@ -249,16 +256,14 @@ class Board {
                 let splitted = value.split("");
                 let idx = 0;
                 for (let elem of splitted) {
-                    // console.log(elem);
-                    let piece: PieceTypes = stringToPiece(elem.toLowerCase()); // convert the character to a piece type
-                    // console.log(piece);
+                    let piece: PieceTypes = stringToPiece(elem.toLowerCase()); //Convert the character to a piece type
                     if (!(piece === PieceTypes.EMPTY)) {
-                        // console.log(index - 1, idx);
                         let side: Side = (elem === elem.toLowerCase() ? Side.BLACK : Side.WHITE);
 
-                        this.boardSetup[index - 1][idx] = new Piece(piece, side, 0, 0, [], [], []);
+                        this.boardSetup[index - 1][idx] = new Piece(piece, side);
 
                         switch (piece) {
+                            //Set the directions and ranges for each piece type (currently only for the base chess game)
                             case PieceTypes.KING: {
                                 this.boardSetup[index - 1][idx].setDirections([Direction.LINE, Direction.DIAGONAL]);
                                 this.boardSetup[index - 1][idx].setRange([1, 1]);
@@ -296,7 +301,8 @@ class Board {
                         idx++;
                     }
                     else {
-                        idx += Number(elem); // number of empty squares, nothing to change
+                        //If it gets to this else, it means it found a number which represents that many empty squares, so skip ahead by that many slots
+                        idx += Number(elem);
                     }
                 }
 
@@ -307,16 +313,21 @@ class Board {
     private updateFen() {
         let newFen: string = "";
         this.fen.split("/").forEach((value, index) => {
+            //index - 1 because the first row starts at 0 and the first index, 0, represents information about the board size, etc.
             if (index - 1 != this.lastMove[0][0] && index - 1 != this.lastMove[1][0])
+                //lastMove can be used. By knowing the rows from which the piece left and then landed, all the other rows can just be copied without any changes
                 newFen += value + "/";
             else {
                 for (let piece of this.boardSetup[index - 1]) {
                     if (piece.getType() != PieceTypes.EMPTY)
                         newFen += piece.getSide() === Side.WHITE ? piece.getType().toUpperCase() : piece.getType();
+                    //Add the found piece in uppercase if it's a white piece, otherwise lowercase
                     else {
-                        if (isNaN(Number(newFen.slice(-1))))
-                            newFen += "1";
+                        //If it gets here, an empty square was found
+                        if (isNaN(Number(newFen.slice(-1)))) //If the last character represents a piece
+                            newFen += "1"; //Add a 1 to represent the empty square
                         else {
+                            //Otherwise it means there is another empty square to the left, so that number gets incrememnted
                             let next: string = (Number(newFen.slice(-1)) + 1).toString();
                             newFen = newFen.slice(0, -1) + next;
                         }
@@ -353,24 +364,26 @@ class Board {
         for (let row of this.boardSetup) {
             let rowString: string = "";
             for (let piece of row)
-                rowString += piece.getSide() === Side.WHITE ? piece.getType().toString().toUpperCase() : piece.getType().toString();
+                rowString += piece.getSide() === Side.WHITE ? piece.getType().toString().toUpperCase() + " " : piece.getType().toString() + " ";
             console.log(rowString);
         }
     }
 }
+
 //"8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 //"8 8/r[102500501510]n[300]6/w" -> fen notation concept for when abilities get implemented (each ability is a 3 digit number)
 //"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
-var board: Board = new Board("8 8/n5P1/2p2rr1/1P6/5k2/2QB4/1q6/1PP5/8");
 
 
-board.printBoard();
-console.log(board.getFen());
-console.log(board.getLastMove());
+// var board: Board = new Board("8 8/n5P1/2p2rr1/1P6/5k2/2QB4/1q6/1PP5/8");
 
-console.log(board.movePiece([4, 3], [1, 6]));
-board.printBoard();
-console.log(board.getFen());
-console.log(board.getLastMove());
+// board.printBoard();
+// console.log(board.getFen());
+// console.log(board.getLastMove());
+
+// console.log(board.movePiece([4, 3], [1, 6]));
+// board.printBoard();
+// console.log(board.getFen());
+// console.log(board.getLastMove());
 
 

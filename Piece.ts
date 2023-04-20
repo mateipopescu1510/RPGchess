@@ -20,6 +20,7 @@ export class Piece {
     private range: number[];
     private directions: Direction[];
     private abilities: PieceAbilities[];
+    private moveCounter: number;
 
     constructor(type: PieceTypes = PieceTypes.EMPTY, side: Side = Side.NONE,
         level: number = 0, currentXP: number = 0,
@@ -33,6 +34,7 @@ export class Piece {
         this.range = range;
         this.directions = directions;
         this.abilities = abilities;
+        this.moveCounter = 0;
     }
 
     setDirections(directions: Direction[]) {
@@ -81,6 +83,18 @@ export class Piece {
 
     getSide(): Side {
         return this.side;
+    }
+
+    incrementMoveCounter() {
+        this.moveCounter++;
+    }
+
+    setMoveCounter(moveCounter: number) {
+        this.moveCounter = moveCounter;
+    }
+
+    getMoveCounter(): number {
+        return this.moveCounter;
     }
 
 
