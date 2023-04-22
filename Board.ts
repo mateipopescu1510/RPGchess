@@ -26,7 +26,15 @@ export class Board {
         if (this.boardSetup[fromRow][fromColumn].getType() === PieceTypes.EMPTY || !this.coordinateInList(this.validMoves([fromRow, fromColumn]), [toRow, toColumn]))
             return false; //Do nothing if an empty square is moved or if the destination isn't in the valid moves
 
-        //TODO highlight the source and destination squares (and unhighlight the previous ones)
+        //TODO check if a move made by a king is castling
+
+        if (this.lastMove[0].toString() != [-1, -1].toString())
+            //If there's a last move source square
+            this.boardSetup[this.lastMove[0][0]][this.lastMove[0][1]].unhighlightPiece();
+
+        if (this.lastMove[1].toString() != [-1, -1].toString())
+            //If there's a last move destination square
+            this.boardSetup[this.lastMove[1][0]][this.lastMove[1][1]].unhighlightPiece();
 
         this.lastMove[0] = [fromRow, fromColumn];
         this.lastMove[1] = [toRow, toColumn];
@@ -37,7 +45,9 @@ export class Board {
         this.boardSetup[toRow][toColumn].incrementMoveCounter();
         this.boardSetup[fromRow][fromColumn] = new Piece(); //Create a new empty square where the piece was previously
 
-
+        //Highlight this move's source and destination squares
+        this.boardSetup[fromRow][fromColumn].highlightPiece();
+        this.boardSetup[toRow][toColumn].highlightPiece();
 
         this.updateFen();
 
@@ -61,6 +71,26 @@ export class Board {
             switch (directions[index]) {
 
                 case Direction.LINE: {
+                    if (this.boardSetup[row][column].getType() === PieceTypes.KING && this.boardSetup[row][column].getMoveCounter() === 0) {
+                        //If the piece is a king and it hasn't moved yet, castling is available
+                        //Find the leftmost and the rightmost rook (different boards may have more than two rooks)
+                        let rook1: number = -1;
+                        let rook2: number = -1;
+
+                        for (let i = 0; i < this.COLUMNS; i++)
+                            if (this.boardSetup[row][i].getType() === PieceTypes.ROOK)
+                                if (rook1 === -1)
+                                    rook1 = i;
+                                else
+                                    rook2 = i;
+                        //TODO for these two if's, also check if the squares between the king and rook are empty 
+                        if (rook1 != -1 && this.boardSetup[row][rook1].getMoveCounter() === 0)
+                            moves.push([row, rook1]); //If there is a leftmost rook, add its coordinates to the valid moves
+
+                        if (rook2 != -1 && this.boardSetup[row][rook2].getMoveCounter() === 0)
+                            moves.push([row, rook2]); //Same for the rightmost rook
+                    }
+
                     //Check up, down, left, right with for loops
                     let range: number = ranges[index] === INFINITE_RANGE ? Math.max(this.ROWS, this.COLUMNS) : ranges[index]; //Set the range to the size of the board if it's infinite
                     for (let i = 1; i <= range && row + i < this.ROWS; i++) {
@@ -378,16 +408,15 @@ export class Board {
 //"8 8/r[102500501510]n[300]6/w" -> fen notation concept for when abilities get implemented (each ability is a 3 digit number)
 //"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
 
+var board: Board = new Board("8 8/n5P1/2p2rr1/1P6/5k2/2QB4/1q6/1PP5/8");
 
-// var board: Board = new Board("8 8/n5P1/2p2rr1/1P6/5k2/2QB4/1q6/1PP5/8");
+board.printBoard();
+console.log(board.getFen());
+console.log(board.getLastMove());
 
-// board.printBoard();
-// console.log(board.getFen());
-// console.log(board.getLastMove());
-
-// console.log(board.movePiece([4, 3], [1, 6]));
-// board.printBoard();
-// console.log(board.getFen());
-// console.log(board.getLastMove());
+console.log(board.movePiece([4, 3], [1, 6]));
+board.printBoard();
+console.log(board.getFen());
+console.log(board.getLastMove());
 
 
