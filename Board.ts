@@ -14,19 +14,23 @@ export class Board {
     private ROWS: number;
     private COLUMNS: number;
     private boardSetup: Piece[][];
+    private whiteKingPosition: [number, number];
+    private blackKingPosition: [number, number];
     private lastMove: [[number, number], [number, number], Piece | null, Piece | null]; //[from, to, piece that was moved, what it landed on]
 
     constructor(fen: string) {
         this.fen = fen;
+        this.whiteKingPosition = [-1, -1];
+        this.blackKingPosition = [-1, -1];
         this.convertFen(fen);
         this.lastMove = [[-1, -1], [-1, -1], null, null];
     }
 
+    //TODO add selectPiece() method? and highlight its possible moves
+
     movePiece([fromRow, fromColumn]: [number, number], [toRow, toColumn]: [number, number]): Boolean {
         if (this.boardSetup[fromRow][fromColumn].getType() === PieceTypes.EMPTY || !this.coordinateInList(this.validMoves([fromRow, fromColumn]), [toRow, toColumn]))
             return false; //Do nothing if an empty square is moved or if the destination isn't in the valid moves
-
-        //TODO check if a move made by a king is castling
 
         if (this.lastMove[0].toString() != [-1, -1].toString())
             //If there's a last move source square
@@ -38,12 +42,15 @@ export class Board {
 
         this.lastMove[0] = [fromRow, fromColumn];
         this.lastMove[1] = [toRow, toColumn];
-        this.lastMove[2] = this.boardSetup[fromRow][fromColumn];
-        this.lastMove[3] = this.boardSetup[toRow][toColumn];
+        //this.lastMove[2] = this.boardSetup[fromRow][fromColumn];
+        //this.lastMove[3] = this.boardSetup[toRow][toColumn];
 
         this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn]; //Move the piece to the new square
         this.boardSetup[toRow][toColumn].incrementMoveCounter();
         this.boardSetup[fromRow][fromColumn] = new Piece(); //Create a new empty square where the piece was previously
+
+        if (this.boardSetup[toRow][toColumn].getType() === PieceTypes.KING)
+            this.boardSetup[toRow][toColumn].getSide() === Side.WHITE ? this.whiteKingPosition = [toRow, toColumn] : this.blackKingPosition = [toRow, toColumn];
 
         //Highlight this move's source and destination squares
         this.boardSetup[fromRow][fromColumn].highlightPiece();
@@ -52,6 +59,28 @@ export class Board {
         this.updateFen();
 
         return true;
+    }
+
+    kingInCheck(kingPosition: [number, number]): Boolean {
+        let row: number = kingPosition[0];
+        let column: number = kingPosition[1];
+        for (let i = row; i < this.ROWS; i++)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column]) && this.boardSetup[row][column].getType() in [PieceTypes.QUEEN, PieceTypes.ROOK])
+                return true;
+
+        for (let i = row; i >= 0; i--)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row - i][column]) && this.boardSetup[row][column].getType() in [PieceTypes.QUEEN, PieceTypes.ROOK])
+                return true;
+
+        for (let i = column; i < this.COLUMNS; i++)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row][column + i]) && this.boardSetup[row][column].getType() in [PieceTypes.QUEEN, PieceTypes.ROOK])
+                return true;
+
+        for (let i = column; i >= 0; i--)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row][column - i]) && this.boardSetup[row][column].getType() in [PieceTypes.QUEEN, PieceTypes.ROOK])
+                return true;
+
+        return false;
     }
 
     private coordinateInList(list: Array<[number, number]>, coordinate: [number, number]): Boolean {
@@ -71,7 +100,8 @@ export class Board {
             switch (directions[index]) {
 
                 case Direction.LINE: {
-                    if (this.boardSetup[row][column].getType() === PieceTypes.KING && this.boardSetup[row][column].getMoveCounter() === 0) {
+                    //Castling will be worked on later
+                    /*if (this.boardSetup[row][column].getType() === PieceTypes.KING && this.boardSetup[row][column].getMoveCounter() === 0) {
                         //If the piece is a king and it hasn't moved yet, castling is available
                         //Find the leftmost and the rightmost rook (different boards may have more than two rooks)
                         let rook1: number = -1;
@@ -83,13 +113,13 @@ export class Board {
                                     rook1 = i;
                                 else
                                     rook2 = i;
-                        //TODO for these two if's, also check if the squares between the king and rook are empty 
+                                    
                         if (rook1 != -1 && this.boardSetup[row][rook1].getMoveCounter() === 0)
                             moves.push([row, rook1]); //If there is a leftmost rook, add its coordinates to the valid moves
 
                         if (rook2 != -1 && this.boardSetup[row][rook2].getMoveCounter() === 0)
                             moves.push([row, rook2]); //Same for the rightmost rook
-                    }
+                    }*/
 
                     //Check up, down, left, right with for loops
                     let range: number = ranges[index] === INFINITE_RANGE ? Math.max(this.ROWS, this.COLUMNS) : ranges[index]; //Set the range to the size of the board if it's infinite
@@ -294,13 +324,14 @@ export class Board {
                     if (!(piece === PieceTypes.EMPTY)) {
                         let side: Side = (elem === elem.toLowerCase() ? Side.BLACK : Side.WHITE);
 
-                        this.boardSetup[index - 1][idx] = new Piece(piece, side);
+                        this.boardSetup[index - 1][idx] = new Piece(piece, side, [index - 1, idx]); //Third argument is the piece's initial square
 
                         switch (piece) {
                             //Set the directions and ranges for each piece type (currently only for the base chess game)
                             case PieceTypes.KING: {
                                 this.boardSetup[index - 1][idx].setDirections([Direction.LINE, Direction.DIAGONAL]);
                                 this.boardSetup[index - 1][idx].setRange([1, 1]);
+                                side === Side.WHITE ? this.whiteKingPosition = [index - 1, idx] : this.blackKingPosition = [index - 1, idx];
                                 break;
                             }
                             case PieceTypes.QUEEN: {
@@ -393,6 +424,14 @@ export class Board {
         return this.lastMove;
     }
 
+    getWhiteKingPosition(): [number, number] {
+        return this.whiteKingPosition;
+    }
+
+    getBlackKingPosition(): [number, number] {
+        return this.blackKingPosition;
+    }
+
     printBoard() {
         //only for testing
         for (let row of this.boardSetup) {
@@ -408,15 +447,11 @@ export class Board {
 //"8 8/r[102500501510]n[300]6/w" -> fen notation concept for when abilities get implemented (each ability is a 3 digit number)
 //"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
 
-var board: Board = new Board("8 8/n5P1/2p2rr1/1P6/5k2/2QB4/1q6/1PP5/8");
+var board: Board = new Board("8 8/8/3r4/8/8/8/3K4/8/8");
 
 board.printBoard();
-console.log(board.getFen());
-console.log(board.getLastMove());
-
-console.log(board.movePiece([4, 3], [1, 6]));
-board.printBoard();
-console.log(board.getFen());
-console.log(board.getLastMove());
+console.log("Current FEN:", board.getFen());
+console.log("White king position:", board.getWhiteKingPosition());
+console.log(board.kingInCheck(board.getWhiteKingPosition()));
 
 

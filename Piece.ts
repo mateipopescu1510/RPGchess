@@ -15,6 +15,7 @@ export function sameSide(piece1: Piece, piece2: Piece): Boolean {
 export class Piece {
     private type: PieceTypes;
     private side: Side;
+    private initialSquare: [number, number];
     private level: number;
     private currentXP: number;
     private range: number[];
@@ -24,12 +25,14 @@ export class Piece {
     private highlighted: Boolean;
 
     constructor(type: PieceTypes = PieceTypes.EMPTY, side: Side = Side.NONE,
+        initialSquare: [number, number] = [-1, -1],
         level: number = 0, currentXP: number = 0,
         range: number[] = [0], directions: Direction[] = [],
         abilities: PieceAbilities[] = []) {
 
         this.type = type;
         this.side = side;
+        this.initialSquare = initialSquare;
         this.level = level;
         this.currentXP = currentXP;
         this.range = range;
@@ -109,6 +112,10 @@ export class Piece {
 
     getHighlight(): Boolean {
         return this.highlighted;
+    }
+
+    getInitialSquare(): [number, number] {
+        return this.initialSquare;
     }
 
 
