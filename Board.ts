@@ -1,5 +1,5 @@
 import { Direction, INFINITE_RANGE, PieceTypes, Side } from './Enums';
-import { oppositeSide, Piece, sameSide } from './Piece'
+import { isQueenOrBishop, isQueenOrRook, isKing, isKnight, isPawn, oppositeSide, Piece, sameSide } from './Piece'
 
 export function stringToPiece(piece: string): PieceTypes {
     for (let type in PieceTypes) {
@@ -62,23 +62,121 @@ export class Board {
     }
 
     kingInCheck(kingPosition: [number, number]): Boolean {
+        //TODO break for's if friendly piece is found
+        //Might seem repetitive, but starting from the king's position and looping over lines, diagonals, etc. seems 
+        //way better than finding every single enemy piece and seeing if the king's square is in its valid moves
         let row: number = kingPosition[0];
         let column: number = kingPosition[1];
-        for (let i = row; i < this.ROWS; i++)
-            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column]) && this.boardSetup[row][column].getType() in [PieceTypes.QUEEN, PieceTypes.ROOK])
+
+        if (this.checkFromDiagonals(row, column))
+            return true;
+
+        if (this.checkFromLines(row, column))
+            return true;
+
+        if (this.checkFromKnight(row, column))
+            return true;
+
+        if (this.checkFromPawn(row, column))
+            return true;
+
+        return false;
+    }
+
+    private checkFromLines(row: number, column: number): Boolean {
+        for (let i = 1; row + i < this.ROWS; i++)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column]) && isQueenOrRook(this.boardSetup[row + i][column]))
                 return true;
 
-        for (let i = row; i >= 0; i--)
-            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row - i][column]) && this.boardSetup[row][column].getType() in [PieceTypes.QUEEN, PieceTypes.ROOK])
+        for (let i = 1; row - i >= 0; i++)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row - i][column]) && isQueenOrRook(this.boardSetup[row - i][column]))
                 return true;
 
-        for (let i = column; i < this.COLUMNS; i++)
-            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row][column + i]) && this.boardSetup[row][column].getType() in [PieceTypes.QUEEN, PieceTypes.ROOK])
+        for (let i = 1; column + i < this.COLUMNS; i++)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row][column + i]) && isQueenOrRook(this.boardSetup[row][column + i]))
                 return true;
 
-        for (let i = column; i >= 0; i--)
-            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row][column - i]) && this.boardSetup[row][column].getType() in [PieceTypes.QUEEN, PieceTypes.ROOK])
+        for (let i = 1; column - i >= 0; i++)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row][column - i]) && isQueenOrRook(this.boardSetup[row][column - i]))
                 return true;
+
+        return false;
+    }
+
+    private checkFromDiagonals(row: number, column: number): Boolean {
+        for (let i = 1; row + i < this.ROWS && column + i < this.COLUMNS; i++)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column + i]) && isQueenOrBishop(this.boardSetup[row + i][column + i]))
+                return true;
+
+        for (let i = 1; row - i >= 0 && column - i >= 0; i++)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row - i][column - i]) && isQueenOrBishop(this.boardSetup[row - i][column - i]))
+                return true;
+
+        for (let i = 1; row + i < this.ROWS && column - i >= 0; i++)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column - i]) && isQueenOrBishop(this.boardSetup[row + i][column - i]))
+                return true;
+
+        for (let i = 1; row - i >= 0 && column + i < this.COLUMNS; i++)
+            if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row - i][column + i]) && isQueenOrBishop(this.boardSetup[row - i][column + i]))
+                return true;
+
+        return false;
+    }
+
+    private checkFromKnight(row: number, column: number): Boolean {
+        let rowMinus2 = row - 2 >= 0;
+        let rowMinus1 = row - 1 >= 0;
+        let rowPlus2 = row + 2 < this.ROWS;
+        let rowPlus1 = row + 1 < this.ROWS;
+
+        let columnMinus2 = column - 2 >= 0;
+        let columnMinus1 = column - 1 >= 0;
+        let columnPlus2 = column + 2 < this.COLUMNS;
+        let columnPlus1 = column + 1 < this.COLUMNS;
+
+        if (rowMinus2 && columnMinus1 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row - 2][column - 1]) && isKnight(this.boardSetup[row - 2][column - 1]))
+            return true;
+
+        if (rowMinus2 && columnPlus1 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row - 2][column + 1]) && isKnight(this.boardSetup[row - 2][column + 1]))
+            return true;
+
+        if (rowMinus1 && columnPlus2 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row - 1][column + 2]) && isKnight(this.boardSetup[row - 1][column + 2]))
+            return true;
+
+        if (rowPlus1 && columnPlus2 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row + 1][column + 2]) && isKnight(this.boardSetup[row + 1][column + 2]))
+            return true;
+
+        if (rowPlus2 && columnPlus1 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row + 2][column + 1]) && isKnight(this.boardSetup[row + 2][column + 1]))
+            return true;
+
+        if (rowPlus2 && columnMinus1 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row + 2][column - 1]) && isKnight(this.boardSetup[row + 2][column - 1]))
+            return true;
+
+        if (rowPlus1 && columnMinus2 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row + 1][column - 2]) && isKnight(this.boardSetup[row + 1][column - 2]))
+            return true;
+
+        if (rowMinus1 && columnMinus2 && oppositeSide(this.boardSetup[row][column], this.boardSetup[row - 1][column - 2]) && isKnight(this.boardSetup[row - 1][column - 2]))
+            return true;
+
+        return false;
+    }
+
+    private checkFromPawn(row: number, column: number): Boolean {
+        if (row > 0 && this.boardSetup[row][column].getSide() === Side.WHITE) {
+            if (column + 1 < this.ROWS && this.boardSetup[row - 1][column + 1].getType() === PieceTypes.PAWN && this.boardSetup[row - 1][column + 1].getSide() === Side.BLACK)
+                return true;
+
+            if (column - 1 >= 0 && this.boardSetup[row - 1][column - 1].getType() === PieceTypes.PAWN && this.boardSetup[row - 1][column - 1].getSide() === Side.BLACK)
+                return true;
+        }
+
+        if (row < this.ROWS - 1 && this.boardSetup[row][column].getSide() === Side.BLACK) {
+            if (column + 1 < this.ROWS && this.boardSetup[row + 1][column + 1].getType() === PieceTypes.PAWN && this.boardSetup[row + 1][column + 1].getSide() === Side.WHITE)
+                return true;
+
+            if (column - 1 >= 0 && this.boardSetup[row + 1][column - 1].getType() === PieceTypes.PAWN && this.boardSetup[row + 1][column - 1].getSide() === Side.WHITE)
+                return true;
+        }
 
         return false;
     }
@@ -447,11 +545,14 @@ export class Board {
 //"8 8/r[102500501510]n[300]6/w" -> fen notation concept for when abilities get implemented (each ability is a 3 digit number)
 //"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
 
-var board: Board = new Board("8 8/8/3r4/8/8/8/3K4/8/8");
+var board: Board = new Board("8 8/8/3R3b/8/8/1N2P3/3K3k/6P1/8");
 
 board.printBoard();
 console.log("Current FEN:", board.getFen());
 console.log("White king position:", board.getWhiteKingPosition());
-console.log(board.kingInCheck(board.getWhiteKingPosition()));
+console.log("King in check?:", board.kingInCheck(board.getWhiteKingPosition()));
+
+console.log("Black king position:", board.getBlackKingPosition());
+console.log("King in check?:", board.kingInCheck(board.getBlackKingPosition()));
 
 

@@ -12,6 +12,26 @@ export function sameSide(piece1: Piece, piece2: Piece): Boolean {
     return piece1.getSide() === piece2.getSide();
 }
 
+export function isQueenOrRook(piece: Piece): Boolean {
+    return piece.getType() === PieceTypes.QUEEN || piece.getType() === PieceTypes.ROOK;
+}
+
+export function isQueenOrBishop(piece: Piece): Boolean {
+    return piece.getType() === PieceTypes.QUEEN || piece.getType() === PieceTypes.BISHOP;
+}
+
+export function isKnight(piece: Piece): Boolean {
+    return piece.getType() === PieceTypes.KNIGHT;
+}
+
+export function isPawn(piece: Piece): Boolean {
+    return piece.getType() === PieceTypes.PAWN;
+}
+
+export function isKing(piece: Piece) {
+    return piece.getType() === PieceTypes.KING;
+}
+
 export class Piece {
     private type: PieceTypes;
     private side: Side;
