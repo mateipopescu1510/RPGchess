@@ -62,7 +62,6 @@ export class Board {
     }
 
     kingInCheck(kingPosition: [number, number]): Boolean {
-        //TODO break for's if friendly piece is found
         //Might seem repetitive, but starting from the king's position and looping over lines, diagonals, etc. seems 
         //way better than finding every single enemy piece and seeing if the king's square is in its valid moves
         let row: number = kingPosition[0];
@@ -84,41 +83,65 @@ export class Board {
     }
 
     private checkFromLines(row: number, column: number): Boolean {
-        for (let i = 1; row + i < this.ROWS; i++)
+        for (let i = 1; row + i < this.ROWS; i++) {
+            if (sameSide(this.boardSetup[row][column], this.boardSetup[row + i][column]))
+                break;
             if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column]) && isQueenOrRook(this.boardSetup[row + i][column]))
                 return true;
+        }
 
-        for (let i = 1; row - i >= 0; i++)
+        for (let i = 1; row - i >= 0; i++) {
+            if (sameSide(this.boardSetup[row][column], this.boardSetup[row - i][column]))
+                break;
             if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row - i][column]) && isQueenOrRook(this.boardSetup[row - i][column]))
                 return true;
+        }
 
-        for (let i = 1; column + i < this.COLUMNS; i++)
+        for (let i = 1; column + i < this.COLUMNS; i++) {
+            if (sameSide(this.boardSetup[row][column], this.boardSetup[row][column + i]))
+                break;
             if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row][column + i]) && isQueenOrRook(this.boardSetup[row][column + i]))
                 return true;
+        }
 
-        for (let i = 1; column - i >= 0; i++)
+        for (let i = 1; column - i >= 0; i++) {
+            if (sameSide(this.boardSetup[row][column], this.boardSetup[row][column - i]))
+                break;
             if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row][column - i]) && isQueenOrRook(this.boardSetup[row][column - i]))
                 return true;
+        }
 
         return false;
     }
 
     private checkFromDiagonals(row: number, column: number): Boolean {
-        for (let i = 1; row + i < this.ROWS && column + i < this.COLUMNS; i++)
+        for (let i = 1; row + i < this.ROWS && column + i < this.COLUMNS; i++) {
+            if (sameSide(this.boardSetup[row][column], this.boardSetup[row + i][column + i]))
+                break;
             if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column + i]) && isQueenOrBishop(this.boardSetup[row + i][column + i]))
                 return true;
+        }
 
-        for (let i = 1; row - i >= 0 && column - i >= 0; i++)
+        for (let i = 1; row - i >= 0 && column - i >= 0; i++) {
+            if (sameSide(this.boardSetup[row][column], this.boardSetup[row - i][column - i]))
+                break;
             if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row - i][column - i]) && isQueenOrBishop(this.boardSetup[row - i][column - i]))
                 return true;
+        }
 
-        for (let i = 1; row + i < this.ROWS && column - i >= 0; i++)
+        for (let i = 1; row + i < this.ROWS && column - i >= 0; i++) {
+            if (sameSide(this.boardSetup[row][column], this.boardSetup[row + i][column - i]))
+                break;
             if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row + i][column - i]) && isQueenOrBishop(this.boardSetup[row + i][column - i]))
                 return true;
+        }
 
-        for (let i = 1; row - i >= 0 && column + i < this.COLUMNS; i++)
+        for (let i = 1; row - i >= 0 && column + i < this.COLUMNS; i++) {
+            if (sameSide(this.boardSetup[row][column], this.boardSetup[row - i][column + i]))
+                break;
             if (oppositeSide(this.boardSetup[row][column], this.boardSetup[row - i][column + i]) && isQueenOrBishop(this.boardSetup[row - i][column + i]))
                 return true;
+        }
 
         return false;
     }
