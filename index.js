@@ -3,9 +3,11 @@ const http = require('http');
 const express = require('express');
 const urlencoded = require('body-parser');
 const socketIO = require('socket.io');
+const uuid = require('uuid');
 
-const { connectToDb, getDb } = require('./mongo_db.js');
-const { isValidCredentials } = require('./login_validation.js');
+const { connectToDb, getDb } = require('./mongoDB.js');
+const { isValidCredentials } = require('./loginValidation.js');
+const { handleGames} = require('./gameSocket.js');
 
 
 // Create Express app
@@ -21,10 +23,20 @@ app.use(urlencoded({ extended: true }));
 // MongoDB connect
 connectToDb();
 
+// create virtual game rooms and handle communications
+handleGames(io);             
+
 
 app.get('/game', (req, res) => {
-    res.render('pages/game');
+    let newGameId = uuid.v4();
+    res.redirect(`/game/${newGameId}`);
 })
+
+app.get('/game/:gameId', (req, res) => {
+    let gameId = req.params.gameId;
+    res.render('pages/game', {gameId: gameId});
+
+});
 
 app.get('/register', (req, res) => {
     res.render('pages/register');
@@ -53,20 +65,6 @@ app.post('/login', async (req, res) => {
     else 
       res.send("Invalid account.");
   });
-
-
-io.on('connection', (socket) => {
-    console.log('a user connected');
-
-    socket.on('message', (msg) => {
-        console.log('message: ' + msg);
-        io.emit('message', msg);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
-});
 
 // Start the server
 server.listen(3000, () => {
