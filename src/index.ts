@@ -2,7 +2,7 @@
 import http from 'http';
 import express from 'express';
 import socketIO from 'socket.io';
-import uuid from 'uuid';
+import * as uuid  from 'uuid';
 
 import * as mongodb from './mongoDB';
 import * as login from './loginValidation';
@@ -19,12 +19,12 @@ const io = new socketIO.Server(server)
 // Set up body-parser middleware to parse request bodies
 app.use(express.urlencoded({ extended: true }));
 
+
 // MongoDB connect
 mongodb.connectToDb();
 
 // create virtual game rooms and handle communications
-gameSocket.handleGames(io);             
-
+gameSocket.handleGames(io);    
 
 app.get('/game', (req, res) => {
     let newGameId = uuid.v4();
@@ -68,4 +68,5 @@ app.post('/login', async (req, res) => {
 // Start the server
 server.listen(3000, () => {
     console.log('Server started on http://localhost:3000');
+
 });
