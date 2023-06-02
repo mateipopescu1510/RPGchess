@@ -1,4 +1,4 @@
-import { Direction, INFINITE_RANGE, PieceTypes, Side } from './Enums';
+import { Direction, INFINITE_RANGE, PieceTypes, Side } from './enums';
 import { isQueenOrBishop, isQueenOrRook, isKing, isKnight, isPawn, oppositePiece, Piece, sameSidePiece, sameSide, oppositeSide } from './Piece'
 
 export function stringToPiece(piece: string): PieceTypes {
@@ -22,8 +22,11 @@ export class Board {
         this.fen = fen;
         this.whiteKingPosition = [-1, -1];
         this.blackKingPosition = [-1, -1];
-        this.convertFen(fen);
+        this.ROWS = 0;
+        this.COLUMNS = 0;
+        this.boardSetup = [];
         this.lastMove = [[-1, -1], [-1, -1], null, null];
+        this.convertFen(fen);
     }
 
     //TODO add selectPiece() method? and highlight its possible moves
@@ -667,9 +670,9 @@ export class Board {
 //"8 8/r[102500501510]n[300]6/w" -> fen notation concept for when abilities get implemented (each ability is a 3 digit number)
 //"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
 
-var board: Board = new Board("8 8/rnbqk1nr/pppp1ppp/4p3/1b1P4/5N2/PPP1PPPP/RNBQKB1R/8");
+// var board: Board = new Board("8 8/rnbqk1nr/pppp1ppp/4p3/1b1P4/5N2/PPP1PPPP/RNBQKB1R/8");
 
-board.printBoard();
+// board.printBoard();
 // console.log("Current FEN:", board.getFen());
 // console.log("White king position:", board.getWhiteKingPosition());
 // console.log("White king in check?:", board.kingInCheck(board.getWhiteKingPosition()));
@@ -685,4 +688,4 @@ board.printBoard();
 // board.printBoard();
 // console.log(board.undoMove());
 // board.printBoard();
-board.printValidSquares([6, 4]);
+// board.printValidSquares([6, 4]);

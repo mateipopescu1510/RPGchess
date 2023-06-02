@@ -1,4 +1,4 @@
-import { Direction, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side, GameResult } from './Enums';
+import { Direction, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side, GameResult } from './enums';
 import { oppositeSide, Piece, sameSide } from './Piece'
 import { Board, stringToPiece } from './Board';
 import { GameState } from './GameState';

@@ -1,4 +1,4 @@
-import { Direction, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side } from './Enums';
+import { Direction, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side } from './enums.js';
 import { oppositeSide, Piece, sameSide } from './Piece'
 import { Board, stringToPiece } from './Board';
 
