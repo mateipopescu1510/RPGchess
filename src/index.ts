@@ -19,6 +19,8 @@ const io = new socketIO.Server(server)
 // Set up body-parser middleware to parse request bodies
 app.use(express.urlencoded({ extended: true }));
 
+app.use(express.static('resources'));
+
 
 // MongoDB connect
 mongodb.connectToDb();
@@ -57,15 +59,13 @@ app.get('/login', (req, res) => {
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-  
-    // Check if the username and password are valid
     if (await login.isValidCredentials(username, password))
       res.redirect('/game');
     else 
       res.send("Invalid account.");
   });
 
-// Start the server
+
 server.listen(3000, () => {
     console.log('Server started on http://localhost:3000');
 
