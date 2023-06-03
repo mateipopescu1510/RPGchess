@@ -17,8 +17,8 @@ export function sameSidePiece(piece1: Piece, piece2: Piece): Boolean {
 }
 
 export function sameSide(side1: Side, side2: Side) {
-    return side1 === Side.WHITE && side2 === Side.BLACK ||
-        side1 === Side.BLACK && side2 === Side.WHITE;
+    return side1 === Side.WHITE && side2 === Side.WHITE ||
+        side1 === Side.BLACK && side2 === Side.BLACK;
 }
 
 export function isQueenOrRook(piece: Piece): Boolean {

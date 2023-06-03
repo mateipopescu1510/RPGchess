@@ -86,7 +86,7 @@ export class Board {
         let side = this.boardSetup[row][column].getSide();
         let kingPosition: [number, number] = side === Side.WHITE ? this.whiteKingPosition : this.blackKingPosition;
         let kingIsMoved: Boolean = [row, column].toString() == kingPosition.toString();
-        console.log(kingIsMoved);
+
         for (let move of pseudoLegalMoves) {
             if (kingIsMoved && !this.kingInCheck(move, side, kingPosition, move)) {
                 // console.log(this.kingInCheck(move, kingPosition));
@@ -103,32 +103,25 @@ export class Board {
         //Might seem repetitive, but starting from the king's position and looping over lines, diagonals, etc. seems
         //way better than finding every single enemy piece and seeing if the king's square is in its valid moves
         //Second and third arguments are for also seeing if a candidate move puts one's own king in check
-        console.log("K:", kingPosition, side);
-        if (this.checkFromDiagonals(kingPosition, side, from, to)) {
-            console.log("diagonal check");
+        if (this.checkFromDiagonals(kingPosition, side, from, to))
             return true;
-        }
 
-        if (this.checkFromLines(kingPosition, side, from, to)) {
-            console.log("line check");
+        if (this.checkFromLines(kingPosition, side, from, to))
             return true;
-        }
 
         if (this.checkFromKnight(kingPosition, side, from, to))
             return true;
 
         if (this.checkFromPawn(kingPosition, side, from, to))
             return true;
-        console.log("no check");
+
         return false;
     }
 
     private checkFromLines([row, column]: [number, number], side: Side, [fromRow, fromColumn]: [number, number] = [-1, -1], [toRow, toColumn]: [number, number] = [-1, -1]): Boolean {
         for (let i = 1; row + i < this.ROWS; i++) {
-            if (oppositeSide(side, this.boardSetup[row + i][column].getSide()) && isQueenOrRook(this.boardSetup[row + i][column])) {
-                console.log([row + i, column]);
+            if (oppositeSide(side, this.boardSetup[row + i][column].getSide()) && isQueenOrRook(this.boardSetup[row + i][column]))
                 return true;
-            }
             if (row + i === fromRow && column === fromColumn)
                 continue; //The piece moved from this square so it is treated as empty
             if (row + i === toRow && column === toColumn || sameSide(side, this.boardSetup[row + i][column].getSide()))
@@ -136,44 +129,30 @@ export class Board {
         }
 
         for (let i = 1; row - i >= 0; i++) {
-            if (oppositeSide(side, this.boardSetup[row - i][column].getSide()) && isQueenOrRook(this.boardSetup[row - i][column])) {
-                console.log([row - i, column]);
+            if (oppositeSide(side, this.boardSetup[row - i][column].getSide()) && isQueenOrRook(this.boardSetup[row - i][column]))
                 return true;
-            }
             if (row - i === fromRow && column === fromColumn)
                 continue;
             if (row - i === toRow && column === toColumn || sameSide(side, this.boardSetup[row - i][column].getSide()))
                 break;
-            // if (oppositePiece(this.boardSetup[row][column], this.boardSetup[row - i][column]) && isQueenOrRook(this.boardSetup[row - i][column]))
-            //     return true;
         }
 
         for (let i = 1; column + i < this.COLUMNS; i++) {
-            if (oppositeSide(side, this.boardSetup[row][column + i].getSide()) && isQueenOrRook(this.boardSetup[row][column + i])) {
-                console.log([row, column + i]);
+            if (oppositeSide(side, this.boardSetup[row][column + i].getSide()) && isQueenOrRook(this.boardSetup[row][column + i]))
                 return true;
-            }
             if (row === fromRow && column + i === fromColumn)
                 continue;
             if (row === toRow && column + i === toColumn || sameSide(side, this.boardSetup[row][column + i].getSide()))
                 break;
-
-            // if (oppositePiece(this.boardSetup[row][column], this.boardSetup[row][column + i]) && isQueenOrRook(this.boardSetup[row][column + i]))
-            //     return true;
         }
 
         for (let i = 1; column - i >= 0; i++) {
-            if (oppositeSide(side, this.boardSetup[row][column - i].getSide()) && isQueenOrRook(this.boardSetup[row][column - i])) {
-                console.log([row, column - i]);
+            if (oppositeSide(side, this.boardSetup[row][column - i].getSide()) && isQueenOrRook(this.boardSetup[row][column - i]))
                 return true;
-            }
             if (row === fromRow && column - i === fromColumn)
                 continue;
             if (row === toRow && column - i === toColumn || sameSide(side, this.boardSetup[row][column - i].getSide()))
                 break;
-
-            // if (oppositePiece(this.boardSetup[row][column], this.boardSetup[row][column - i]) && isQueenOrRook(this.boardSetup[row][column - i]))
-            //     return true;
         }
 
         return false;
@@ -670,12 +649,15 @@ export class Board {
 //"8 8/r[102500501510]n[300]6/w" -> fen notation concept for when abilities get implemented (each ability is a 3 digit number)
 //"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
 
-// var board: Board = new Board("8 8/rnbqk1nr/pppp1ppp/4p3/1b1P4/5N2/PPP1PPPP/RNBQKB1R/8");
+// var board: Board = new Board("8 8/rnbqk1nr/pppp1ppp/4q3/1b1P4/5N2/PPP1PPPP/RNBQKB1R/8");
+// var board: Board = new Board("8 8/3rk3/8/8/b7/8/3q3R/3K4/7B");
+
 
 // board.printBoard();
 // console.log("Current FEN:", board.getFen());
-// console.log("White king position:", board.getWhiteKingPosition());
-// console.log("White king in check?:", board.kingInCheck(board.getWhiteKingPosition()));
+// var whiteKing: [number, number] = board.getWhiteKingPosition();
+// console.log("White king position:", whiteKing);
+// console.log("White king in check?:", board.kingInCheck(board.getWhiteKingPosition(), Side.WHITE));
 
 // for (let i = 0; i < 8; i++)
 //     for (let j = 0; j < 8; j++)
@@ -683,9 +665,11 @@ export class Board {
 //             console.log([i, j], "->", board.validMoves([i, j]));
 
 
-// console.log(board.validMoves([4, 1]));
-// console.log(board.movePiece([4, 1], [6, 3]));
+// console.log(board.validMoves(whiteKing));
+// console.log(board.movePiece([3, 1], [6, 3]));
 // board.printBoard();
 // console.log(board.undoMove());
 // board.printBoard();
-// board.printValidSquares([6, 4]);
+// console.log();
+// board.printValidSquares(whiteKing);
+// board.printValidSquares([5, 3]);
