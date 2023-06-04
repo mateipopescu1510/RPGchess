@@ -22,14 +22,50 @@ export class GameState {
         if (this.board.getBoard()[from[0]][from[1]].getSide() != Side.BLACK && this.currentTurn === 1)
             return false;
 
-        let moveSuccessful: Boolean = this.board.movePiece(from, to);
-        return moveSuccessful;
+        if (this.board.movePiece(from, to)) {
+            this.currentTurn = 1 - this.currentTurn;
+            return true;
+        }
+        return false;
     }
+
 
     getTurn(): number {
         return this.currentTurn;
     }
+  
+    takeback(): Boolean {
+        let undoSuccessful: Boolean = this.board.undoMove();
+        if (undoSuccessful) {
+            this.currentTurn = 1 - this.currentTurn;
+            return true;
+        }
+        return false;
+    }
+
+    printBoard() {
+        //Only for testing
+        this.board.printBoard();
+    }
+}
+
+// var game = new GameState("8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", 0, -1, -1);
+// console.log(game.movePiece([7, 6], [5, 5]));
+// console.log(game.movePiece([0, 1], [2, 2]));
+// console.log(game.movePiece([6, 3], [4, 3]));
+// game.printBoard();
+
+// console.log(game.takeback());
+// game.printBoard();
+
+// console.log(game.movePiece([0, 6], [2, 5]));
+// game.printBoard();
+
+// console.log(game.takeback());
+// game.printBoard();
+
+// console.log(game.movePiece([0, 6], [2, 5]));
+// game.printBoard();
 
 
 
-} 

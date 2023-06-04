@@ -5,3 +5,5 @@ build/
 Board.js
 enums.js 
 Piece.js
+GameState.js
+Game.js
