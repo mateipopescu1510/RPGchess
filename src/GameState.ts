@@ -25,4 +25,11 @@ export class GameState {
         let moveSuccessful: Boolean = this.board.movePiece(from, to);
         return moveSuccessful;
     }
+
+    getTurn(): number {
+        return this.currentTurn;
+    }
+
+
+
 } 

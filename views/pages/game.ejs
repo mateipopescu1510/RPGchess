@@ -37,12 +37,15 @@
     const gameScene = new Phaser.Game(config);    // BUG: canvas size is set according to visible screen size, not the entire screen size 
 
     let playerPerspective = '<%= playerPerspective %>';   // "WHITE" or "BLACK"
+    let gameId = '<%= gameId %>';
 
     let startingPosition = "8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-    let game = new GameBundle.Game(1, 2, startingPosition);
-
+    let game = new GameBundle.Game(1, 2, startingPosition);   // game logic
     let gameState = game.gameState;
     let board = gameState.board;
+
+    let boardSquareSprites = [];   // 2D array of sprites representing the board squares
+    let pieceSprites = [];    // 2D array of sprites representing the pieces
 
     function preload() {
       this.load.image('backgroundGradient', '../images/backgroundGradient.avif');
@@ -69,12 +72,13 @@
       background.setScale(this.sys.game.canvas.width / background.width, this.sys.game.canvas.height / background.height);
 
       let squareImageSize = this.textures.get('blackSquare').getSourceImage();
-      let squareSize = 0.8 * window.innerHeight / board.ROWS;     // vertical size of board always coveres 70% of the screen height
+      let squareSize = 0.8 * window.innerHeight / board.ROWS;     // vertical size of board always coveres 80% of the screen height
       let squareScale = squareSize / squareImageSize.width;
       let boardPosition = {x: (window.innerWidth - squareSize * board.COLUMNS) / 2, y: (window.innerHeight - squareSize * board.ROWS) / 2}; // top left corner of the board
-      let boardSquareSprites = [];   // 2D array of sprites representing the board squares
+      
+
       for(let row = 0; row < board.ROWS; row++) {
-        currentRow = [];
+        let currentRow = [];
         for(let col = 0; col < board.COLUMNS; col++) {
           let color = (row + col) % 2 === 0 ? 'white' : 'black'; 
           let squareSprite = this.add.sprite(boardPosition.x + col * squareSize,boardPosition.y + row * squareSize, color + 'Square');
@@ -89,7 +93,9 @@
         boardSquareSprites.push(currentRow);
       }
 
-      for(let row of board.boardSetup)
+
+      for(let row of board.boardSetup) {
+        let currentRow = [];
         for(let piece of row)
         {
           if(piece.type != ".")
@@ -115,54 +121,143 @@
             pieceSprite.col = piece.initialSquare[1];
             pieceSprite.side = piece.side;
             pieceSprite.setInteractive();
-          }
+            pieceSprite.setDepth(1);
 
+            currentRow.push(pieceSprite);
+          }
+          else
+            currentRow.push(undefined);
+        }
+        pieceSprites.push(currentRow);
+      }
+
+      this.input.on("pointerdown", (pointer, gameObjects) => {
+        this.selectedPiece = gameObjects[0];
+        if(this.selectedPiece != undefined && this.selectedPiece.side === playerPerspective)
+        {
+          this.selectedPiece.setDepth(2);
+          this.startingSquare = {row: this.selectedPiece.row, col: this.selectedPiece.col};
         }
 
-        this.input.on("pointerdown", (pointer, gameObjects) => {
-          this.selectedPiece = gameObjects[0];
-          console.log(this.selectedPiece);
-          console.log(playerPerspective);
-          if(this.selectedPiece != undefined)
-            this.startingSquare = {row: this.selectedPiece.row, col: this.selectedPiece.col};
-        }, this);
+      }, this);
 
-        this.input.on("pointermove", (pointer) => {
-          if(this.selectedPiece != undefined && this.selectedPiece.side === playerPerspective)
+      this.input.on("pointermove", (pointer) => {
+        if(this.selectedPiece != undefined && this.selectedPiece.side === playerPerspective)
+        {
+          this.selectedPiece.x = pointer.x - squareSize / 2;
+          this.selectedPiece.y = pointer.y - squareSize / 2;
+        }
+      }, this);
+
+      this.input.on("pointerup", (pointer) => {
+        if(this.selectedPiece != undefined && this.selectedPiece.side === playerPerspective)
+        {
+          let currentTurn = game.getGameState().getTurn();  // returns 0 for white, 1 for black
+          let currentTurnColor = currentTurn === 0 ? "WHITE" : "BLACK";
+          if(!(currentTurnColor === playerPerspective)) // if it's not the player's turn
           {
-            this.selectedPiece.x = pointer.x - squareSize / 2;
-            this.selectedPiece.y = pointer.y - squareSize / 2;
+            console.log("Not your turn!");
+            console.log(pieceSprites);
+            cancelMove(this);
+            return;
           }
-        }, this);
+          if(pointer.x < boardPosition.x || pointer.x > boardPosition.x + squareSize * board.COLUMNS || pointer.y < boardPosition.y || pointer.y > boardPosition.y + squareSize * board.ROWS) // if the pointer is not on the board
+          { // if the mouse is outside the board
+            cancelMove(this);
+            return;
+          }
+          
+          let targetSquareSprite = null;
+          if(playerPerspective === "WHITE")
+            targetSquareSprite = boardSquareSprites[Math.floor((pointer.y - boardPosition.y) / squareSize)][Math.floor((pointer.x - boardPosition.x) / squareSize)];
+          else  // get actual square from memory representation, mirrored to the picked square
+            targetSquareSprite = boardSquareSprites[board.ROWS - Math.floor((pointer.y - boardPosition.y) / squareSize) - 1][board.COLUMNS - Math.floor((pointer.x - boardPosition.x) / squareSize) - 1];
 
-        this.input.on("pointerup", (pointer) => {
-          if(this.selectedPiece != undefined && this.selectedPiece.side === playerPerspective)
+          let isValidMove = game.getGameState().movePiece([this.selectedPiece.row, this.selectedPiece.col], [targetSquareSprite.row, targetSquareSprite.col]); 
+          if(!isValidMove)  // illegal move by game rules
           {
-            if(pointer.x < boardPosition.x || pointer.x > boardPosition.x + squareSize * board.COLUMNS || pointer.y < boardPosition.y || pointer.y > boardPosition.y + squareSize * board.ROWS)
-            {
-              this.selectedPiece.x = boardSquareSprites[this.startingSquare.row][this.startingSquare.col].x;
-              this.selectedPiece.y = boardSquareSprites[this.startingSquare.row][this.startingSquare.col].y;
-              this.selectedPiece.row = this.startingSquare.row;
-              this.selectedPiece.col = this.startingSquare.col;
-            }
-            else
-            {
-              let square = boardSquareSprites[Math.floor((pointer.y - boardPosition.y) / squareSize)][Math.floor((pointer.x - boardPosition.x) / squareSize)];
-              this.selectedPiece.x = boardSquareSprites[square.row][square.col].x;
-              this.selectedPiece.y = boardSquareSprites[square.row][square.col].y;
-              this.selectedPiece.row = square.row;
-              this.selectedPiece.col = square.col;
-            }
-            this.selectedPiece = undefined;
-            this.startingSquare = undefined;
-
+            cancelMove(this);
+            return;
           }
-        }, this);
+
+          // move is valid, update the board
+          if(playerPerspective === "WHITE")
+          { 
+            this.selectedPiece.x = boardSquareSprites[targetSquareSprite.row][targetSquareSprite.col].x;
+            this.selectedPiece.y = boardSquareSprites[targetSquareSprite.row][targetSquareSprite.col].y;
+          }
+          else
+          {
+            this.selectedPiece.x = boardSquareSprites[board.ROWS - targetSquareSprite.row - 1][board.COLUMNS - targetSquareSprite.col - 1].x;
+            this.selectedPiece.y = boardSquareSprites[board.ROWS - targetSquareSprite.row - 1][board.COLUMNS - targetSquareSprite.col - 1].y;
+          }
+          this.selectedPiece.row = targetSquareSprite.row;
+          this.selectedPiece.col = targetSquareSprite.col;
+          let capturedPiece = pieceSprites[targetSquareSprite.row][targetSquareSprite.col];
+          if(capturedPiece != undefined)
+            capturedPiece.destroy();
+
+          this.selectedPiece.setDepth(1);
+          pieceSprites[targetSquareSprite.row][targetSquareSprite.col] = this.selectedPiece;
+          pieceSprites[this.startingSquare.row][this.startingSquare.col] = undefined;
+
+          socket.emit("move", {from: [this.startingSquare.row, this.startingSquare.col], to: [targetSquareSprite.row, targetSquareSprite.col]});
+          this.selectedPiece = undefined;
+          this.startingSquare = undefined;
+
+        }
+      }, this);
+
+
+      let playerColor = playerPerspective === "WHITE" ? 0 : 1;
+      var socket = io({query: {gameId: gameId, playerColor: playerColor}});
+
+      socket.on("move", (move) => {
+        let movedPiece = pieceSprites[move.from[0]][move.from[1]];
+        let capturedPiece = pieceSprites[move.to[0]][move.to[1]];
+        pieceSprites[move.to[0]][move.to[1]] = movedPiece;
+        pieceSprites[move.from[0]][move.from[1]] = undefined;
+
+        if(capturedPiece != undefined)
+          capturedPiece.destroy();
+
+        if(playerPerspective === "WHITE")
+        {
+          movedPiece.x = boardSquareSprites[move.to[0]][move.to[1]].x;
+          movedPiece.y = boardSquareSprites[move.to[0]][move.to[1]].y;
+        }
+        else
+        {
+          movedPiece.x = boardSquareSprites[board.ROWS - move.to[0] - 1][board.COLUMNS - move.to[1] - 1].x;
+          movedPiece.y = boardSquareSprites[board.ROWS - move.to[0] - 1][board.COLUMNS - move.to[1] - 1].y;
+        }
+      });
     }
 
     function update() {
 
     }
+
+    function cancelMove(scene) // scene = Phaser scene; move the selected piece back to square it was on before the player started dragging it
+    {
+      if(scene.selectedPiece != undefined && playerPerspective === "WHITE" && scene.selectedPiece.side === "WHITE")
+      {
+        scene.selectedPiece.x = boardSquareSprites[scene.startingSquare.row][scene.startingSquare.col].x;
+        scene.selectedPiece.y = boardSquareSprites[scene.startingSquare.row][scene.startingSquare.col].y;
+      }
+      else
+      {
+        scene.selectedPiece.x = boardSquareSprites[board.ROWS - scene.startingSquare.row - 1][board.COLUMNS - scene.startingSquare.col - 1].x;
+        scene.selectedPiece.y = boardSquareSprites[board.ROWS - scene.startingSquare.row - 1][board.COLUMNS - scene.startingSquare.col - 1].y;
+      }
+      scene.selectedPiece.row = scene.startingSquare.row;
+      scene.selectedPiece.col = scene.startingSquare.col;
+      scene.selectedPiece.setDepth(1);
+      scene.selectedPiece = undefined;
+      scene.startingSquare = undefined;
+    }
+
+
     </script>
   </body>
 </html>

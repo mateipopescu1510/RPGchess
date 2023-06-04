@@ -28,4 +28,9 @@ export class Game {
         return this.blackId;
     }
 
+    getGameState(): GameState {
+        return this.gameState;
+    }
+    
+
 }
