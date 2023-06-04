@@ -2,6 +2,7 @@ import { Direction, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side } from './en
 import { oppositeSide, Piece, sameSide } from './Piece'
 import { Board, stringToPiece } from './Board';
 
+
 export class GameState {
     private board: Board;
     private currentTurn: number; //0 for white, 1 for black
