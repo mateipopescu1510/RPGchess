@@ -1,19 +1,160 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Phaser Chess Game</title>
-</head>
-<body>
-  <script src="http://localhost:3000/scripts/phaser.min.js"></script>
-  <script>
+  <head>
+    <meta charset="utf-8">
+    <title>RPGchess</title>
+    <style>
+      #game-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      </style>
+  </head>
+  <body>
+    <div id="game-container"></div>
+    <script src="../scripts/phaser.min.js"></script>
+    <script src="../scripts/GameBundle.js"></script>
+    <script>
+
     const config = {
       type: Phaser.AUTO,
-      width: 800,
-      height: 600,
+      parent: 'game-container',
+      width: window.innerWidth,
+      height: window.innerHeight,
+      scene: {
+        preload: preload,
+        create: create,
+        update: update
+      }
     };
-  
-    const game = new Phaser.Game(config);
-  </script>
-</body>
+    const gameScene = new Phaser.Game(config);    // BUG: canvas size is set according to visible screen size, not the entire screen size 
+
+    let startingPosition = "8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    let game = new GameBundle.Game(1, 2, startingPosition);
+
+    let gameState = game.gameState;
+    let board = gameState.board;
+
+    function preload() {
+      this.load.image('backgroundGradient', '../images/backgroundGradient.avif');
+      this.load.image('blackSquare', '../images/blackSquare.png');
+      this.load.image('whiteSquare', '../images/whiteSquare.png');
+      this.load.image('whitePawn', '../images/whitePawn.png');
+      this.load.image('whiteRook', '../images/whiteRook.png');
+      this.load.image('whiteKnight', '../images/whiteKnight.png');
+      this.load.image('whiteBishop', '../images/whiteBishop.png');
+      this.load.image('whiteQueen', '../images/whiteQueen.png');
+      this.load.image('whiteKing', '../images/whiteKing.png');
+      this.load.image('blackPawn', '../images/blackPawn.png');
+      this.load.image('blackRook', '../images/blackRook.png');
+      this.load.image('blackKnight', '../images/blackKnight.png');
+      this.load.image('blackBishop', '../images/blackBishop.png');
+      this.load.image('blackQueen', '../images/blackQueen.png');
+      this.load.image('blackKing', '../images/blackKing.png');
+
+    }
+
+    function create() {
+      const background = this.add.image(0, 0, 'backgroundGradient');
+      background.setOrigin(0);
+      background.setScale(this.sys.game.canvas.width / background.width, this.sys.game.canvas.height / background.height);
+
+      let squareImageSize = this.textures.get('blackSquare').getSourceImage();
+      let squareSize = 0.8 * window.innerHeight / board.ROWS;     // vertical size of board always coveres 70% of the screen height
+      let squareScale = squareSize / squareImageSize.width;
+      let boardPosition = {x: (window.innerWidth - squareSize * board.COLUMNS) / 2, y: (window.innerHeight - squareSize * board.ROWS) / 2}; // top left corner of the board
+      let boardSquareSprites = [];   // 2D array of sprites representing the board squares
+      for(let row = 0; row < board.ROWS; row++) {
+        currentRow = [];
+        for(let col = 0; col < board.COLUMNS; col++) {
+          let color = (row + col) % 2 == 0 ? 'white' : 'black'; 
+          let squareSprite = this.add.sprite(boardPosition.x + col * squareSize,boardPosition.y + row * squareSize, color + 'Square');
+          squareSprite.setOrigin(0, 0); 
+          squareSprite.setScale(squareScale);
+          squareSprite.row = row;
+          squareSprite.col = col;
+          squareSprite.x = boardPosition.x + col * squareSize;
+          squareSprite.y = boardPosition.y + row * squareSize;
+          currentRow.push(squareSprite);
+        }
+        boardSquareSprites.push(currentRow);
+      }
+
+      for(let row of board.boardSetup)
+        for(let piece of row)
+        {
+          if(piece.type != ".")
+          {
+            let pieceName = ".";
+            if(piece.type == "p") pieceName = "Pawn";
+            else if(piece.type == "r") pieceName = "Rook";
+            else if(piece.type == "n") pieceName = "Knight";
+            else if(piece.type == "b") pieceName = "Bishop";
+            else if(piece.type == "q") pieceName = "Queen";
+            else if(piece.type == "k") pieceName = "King";
+
+            let pieceColor = piece.side == "WHITE" ? "white" : "black";
+            let pieceSprite = this.add.sprite(boardSquareSprites[piece.initialSquare[0]][piece.initialSquare[1]].x, boardSquareSprites[piece.initialSquare[0]][piece.initialSquare[1]].y, pieceColor + pieceName);
+            pieceSprite.setOrigin(0, 0);
+            pieceSprite.setScale(squareScale);
+            pieceSprite.row = piece.initialSquare[0];
+            pieceSprite.col = piece.initialSquare[1];
+            pieceSprite.x = boardSquareSprites[piece.initialSquare[0]][piece.initialSquare[1]].x;
+            pieceSprite.y = boardSquareSprites[piece.initialSquare[0]][piece.initialSquare[1]].y;
+            if(piece.side == "WHITE")
+              pieceSprite.setInteractive();
+          }
+
+        }
+
+        this.input.on("pointerdown", (pointer, gameObjects) => {
+          this.selectedPiece = gameObjects[0];
+          if(this.selectedPiece != undefined)
+            this.startingSquare = {row: this.selectedPiece.row, col: this.selectedPiece.col};
+        }, this);
+
+        this.input.on("pointermove", (pointer) => {
+          if(this.selectedPiece != undefined)
+          {
+            this.selectedPiece.x = pointer.x - squareSize / 2;
+            this.selectedPiece.y = pointer.y - squareSize / 2;
+          }
+        }, this);
+
+        this.input.on("pointerup", (pointer) => {
+          if(this.selectedPiece != undefined)
+          {
+            if(pointer.x < boardPosition.x || pointer.x > boardPosition.x + squareSize * board.COLUMNS || pointer.y < boardPosition.y || pointer.y > boardPosition.y + squareSize * board.ROWS)
+            {
+              this.selectedPiece.x = boardSquareSprites[this.startingSquare.row][this.startingSquare.col].x;
+              this.selectedPiece.y = boardSquareSprites[this.startingSquare.row][this.startingSquare.col].y;
+              this.selectedPiece.row = this.startingSquare.row;
+              this.selectedPiece.col = this.startingSquare.col;
+            }
+            else
+            {
+              let square = boardSquareSprites[Math.floor((pointer.y - boardPosition.y) / squareSize)][Math.floor((pointer.x - boardPosition.x) / squareSize)];
+              this.selectedPiece.x = boardSquareSprites[square.row][square.col].x;
+              this.selectedPiece.y = boardSquareSprites[square.row][square.col].y;
+              this.selectedPiece.row = square.row;
+              this.selectedPiece.col = square.col;
+            }
+            this.selectedPiece = undefined;
+            this.startingSquare = undefined;
+
+          }
+        }, this);
+    }
+
+    function update() {
+
+    }
+    </script>
+  </body>
 </html>
