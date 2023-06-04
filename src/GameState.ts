@@ -29,6 +29,11 @@ export class GameState {
         return false;
     }
 
+
+    getTurn(): number {
+        return this.currentTurn;
+    }
+  
     takeback(): Boolean {
         let undoSuccessful: Boolean = this.board.undoMove();
         if (undoSuccessful) {
@@ -61,5 +66,6 @@ export class GameState {
 
 // console.log(game.movePiece([0, 6], [2, 5]));
 // game.printBoard();
+
 
 
