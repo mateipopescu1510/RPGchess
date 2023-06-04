@@ -23,7 +23,7 @@ export class GameState {
             return false;
 
         if (this.board.movePiece(from, to)) {
-            this.currentTurn = 1 - this.currentTurn;
+            this.changeTurn();
             return true;
         }
         return false;
@@ -46,6 +46,10 @@ export class GameState {
     printBoard() {
         //Only for testing
         this.board.printBoard();
+    }
+
+    changeTurn() {
+        this.currentTurn = 1 - this.currentTurn;
     }
 }
 

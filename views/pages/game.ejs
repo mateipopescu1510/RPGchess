@@ -156,8 +156,6 @@
           let currentTurnColor = currentTurn === 0 ? "WHITE" : "BLACK";
           if(!(currentTurnColor === playerPerspective)) // if it's not the player's turn
           {
-            console.log("Not your turn!");
-            console.log(pieceSprites);
             cancelMove(this);
             return;
           }
@@ -231,6 +229,7 @@
           movedPiece.x = boardSquareSprites[board.ROWS - move.to[0] - 1][board.COLUMNS - move.to[1] - 1].x;
           movedPiece.y = boardSquareSprites[board.ROWS - move.to[0] - 1][board.COLUMNS - move.to[1] - 1].y;
         }
+        gameState.movePiece(move.from, move.to);
       });
     }
 
