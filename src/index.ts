@@ -35,7 +35,8 @@ app.get('/game', (req, res) => {
 
 app.get('/game/:gameId', (req, res) => {
     let gameId = req.params.gameId;
-    res.render('pages/game', {gameId: gameId});
+    let playerPerspective = Math.random() < 0.5 ? "WHITE" : "BLACK";
+    res.render('pages/game', {gameId: gameId, playerPerspective: playerPerspective});
 
 });
 
