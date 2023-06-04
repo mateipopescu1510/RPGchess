@@ -35,6 +35,7 @@
     };
     const gameScene = new Phaser.Game(config);    // BUG: canvas size is set according to visible screen size, not the entire screen size 
 
+    let playerPerspective = '<%= playerPerspective %>';   // "WHITE" or "BLACK"
     let startingPosition = "8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
     let game = new GameBundle.Game(1, 2, startingPosition);
 
@@ -73,7 +74,7 @@
       for(let row = 0; row < board.ROWS; row++) {
         currentRow = [];
         for(let col = 0; col < board.COLUMNS; col++) {
-          let color = (row + col) % 2 == 0 ? 'white' : 'black'; 
+          let color = (row + col) % 2 === 0 ? 'white' : 'black'; 
           let squareSprite = this.add.sprite(boardPosition.x + col * squareSize,boardPosition.y + row * squareSize, color + 'Square');
           squareSprite.setOrigin(0, 0); 
           squareSprite.setScale(squareScale);
@@ -92,35 +93,39 @@
           if(piece.type != ".")
           {
             let pieceName = ".";
-            if(piece.type == "p") pieceName = "Pawn";
-            else if(piece.type == "r") pieceName = "Rook";
-            else if(piece.type == "n") pieceName = "Knight";
-            else if(piece.type == "b") pieceName = "Bishop";
-            else if(piece.type == "q") pieceName = "Queen";
-            else if(piece.type == "k") pieceName = "King";
+            if(piece.type === "p") pieceName = "Pawn";
+            else if(piece.type === "r") pieceName = "Rook";
+            else if(piece.type === "n") pieceName = "Knight";
+            else if(piece.type === "b") pieceName = "Bishop";
+            else if(piece.type === "q") pieceName = "Queen";
+            else if(piece.type === "k") pieceName = "King";
 
-            let pieceColor = piece.side == "WHITE" ? "white" : "black";
-            let pieceSprite = this.add.sprite(boardSquareSprites[piece.initialSquare[0]][piece.initialSquare[1]].x, boardSquareSprites[piece.initialSquare[0]][piece.initialSquare[1]].y, pieceColor + pieceName);
+            let pieceSprice = null;
+            let pieceColor = piece.side === "WHITE" ? "white" : "black";
+            if(playerPerspective === "WHITE")
+              pieceSprite = this.add.sprite(boardSquareSprites[piece.initialSquare[0]][piece.initialSquare[1]].x, boardSquareSprites[piece.initialSquare[0]][piece.initialSquare[1]].y, pieceColor + pieceName);
+            else
+              pieceSprite = this.add.sprite(boardSquareSprites[board.ROWS - piece.initialSquare[0] - 1][board.COLUMNS - piece.initialSquare[1] - 1].x, boardSquareSprites[board.ROWS - piece.initialSquare[0] - 1][board.COLUMNS - piece.initialSquare[1] - 1].y, pieceColor + pieceName);
+         
             pieceSprite.setOrigin(0, 0);
             pieceSprite.setScale(squareScale);
             pieceSprite.row = piece.initialSquare[0];
             pieceSprite.col = piece.initialSquare[1];
-            pieceSprite.x = boardSquareSprites[piece.initialSquare[0]][piece.initialSquare[1]].x;
-            pieceSprite.y = boardSquareSprites[piece.initialSquare[0]][piece.initialSquare[1]].y;
-            if(piece.side == "WHITE")
-              pieceSprite.setInteractive();
+            pieceSprite.side = piece.side;
+            pieceSprite.setInteractive();
           }
 
         }
 
         this.input.on("pointerdown", (pointer, gameObjects) => {
           this.selectedPiece = gameObjects[0];
+          console.log(this.selectedPiece);
           if(this.selectedPiece != undefined)
             this.startingSquare = {row: this.selectedPiece.row, col: this.selectedPiece.col};
         }, this);
 
         this.input.on("pointermove", (pointer) => {
-          if(this.selectedPiece != undefined)
+          if(this.selectedPiece != undefined && this.selectedPiece.side === playerPerspective)
           {
             this.selectedPiece.x = pointer.x - squareSize / 2;
             this.selectedPiece.y = pointer.y - squareSize / 2;
@@ -128,7 +133,7 @@
         }, this);
 
         this.input.on("pointerup", (pointer) => {
-          if(this.selectedPiece != undefined)
+          if(this.selectedPiece != undefined && this.selectedPiece.side === playerPerspective)
           {
             if(pointer.x < boardPosition.x || pointer.x > boardPosition.x + squareSize * board.COLUMNS || pointer.y < boardPosition.y || pointer.y > boardPosition.y + squareSize * board.ROWS)
             {
