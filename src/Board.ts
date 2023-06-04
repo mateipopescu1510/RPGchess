@@ -17,8 +17,9 @@ export class Board {
     private whiteKingPosition: [number, number];
     private blackKingPosition: [number, number];
     private lastMove: [[number, number], [number, number], Piece | null, Piece | null]; //[from, to, piece that was moved, what it landed on]
+    private pseudoLegal: Boolean; //If set to true, game is played without enforced legal moves (kings can be captured)
 
-    constructor(fen: string) {
+    constructor(fen: string, pseudoLegal: Boolean = false) {
         this.fen = fen;
         this.whiteKingPosition = [-1, -1];
         this.blackKingPosition = [-1, -1];
@@ -27,13 +28,20 @@ export class Board {
         this.boardSetup = [];
         this.lastMove = [[-1, -1], [-1, -1], null, null];
         this.convertFen(fen);
+        this.pseudoLegal = pseudoLegal;
     }
 
     //TODO add selectPiece() method? and highlight its possible moves
 
     movePiece([fromRow, fromColumn]: [number, number], [toRow, toColumn]: [number, number]): Boolean {
-        if (this.boardSetup[fromRow][fromColumn].getType() === PieceTypes.EMPTY || !this.coordinateInList(this.validMoves([fromRow, fromColumn]), [toRow, toColumn]))
-            return false; //Do nothing if an empty square is moved or if the destination isn't in the valid moves
+        if (this.boardSetup[fromRow][fromColumn].getType() === PieceTypes.EMPTY)
+            return false; //Do nothing if an empty square is moved
+
+        if (!this.pseudoLegal && !this.coordinateInList(this.validMoves([fromRow, fromColumn]), [toRow, toColumn]))
+            return false; //Do nothing if game is set to legal moves and destination isn't in the legal moves
+
+        if (this.pseudoLegal && !this.coordinateInList(this.pseudoLegalMoves([fromRow, fromColumn]), [toRow, toColumn]))
+            return false; //Do nothing if game is set to legal moves and destination isn't in the legal moves
 
         if (this.lastMove[0].toString() != [-1, -1].toString())
             //If there's a last move source square
@@ -88,20 +96,16 @@ export class Board {
         let kingIsMoved: Boolean = [row, column].toString() == kingPosition.toString();
 
         for (let move of pseudoLegalMoves) {
-            if (kingIsMoved && !this.kingInCheck(move, side, kingPosition, move)) {
-                // console.log(this.kingInCheck(move, kingPosition));
+            if (kingIsMoved && !this.kingInCheck(move, side, kingPosition, move))
                 moves.push(move);
-            }
-            else if (!kingIsMoved && !this.kingInCheck(kingPosition, side, [row, column], move)) {
+            else if (!kingIsMoved && !this.kingInCheck(kingPosition, side, [row, column], move))
                 moves.push(move);
-            }
         }
         return moves;
     }
 
     kingInCheck(kingPosition: [number, number], side: Side, from: [number, number] = [-1, -1], to: [number, number] = [-1, -1]): Boolean {
-        //Might seem repetitive, but starting from the king's position and looping over lines, diagonals, etc. seems
-        //way better than finding every single enemy piece and seeing if the king's square is in its valid moves
+        //Way better than finding every single enemy piece and seeing if the king's square is in its valid moves
         //Second and third arguments are for also seeing if a candidate move puts one's own king in check
         if (this.checkFromDiagonals(kingPosition, side, from, to))
             return true;
@@ -650,7 +654,7 @@ export class Board {
 //"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
 
 // var board: Board = new Board("8 8/rnbqk1nr/pppp1ppp/4q3/1b1P4/5N2/PPP1PPPP/RNBQKB1R/8");
-// var board: Board = new Board("8 8/3rk3/8/8/b7/8/3q3R/3K4/7B");
+// var board: Board = new Board("8 8/3rk3/8/8/b7/8/3q3R/3K4/7B", true);
 
 
 // board.printBoard();
@@ -659,17 +663,8 @@ export class Board {
 // console.log("White king position:", whiteKing);
 // console.log("White king in check?:", board.kingInCheck(board.getWhiteKingPosition(), Side.WHITE));
 
-// for (let i = 0; i < 8; i++)
-//     for (let j = 0; j < 8; j++)
-//         if (board.getBoard()[i][j].getSide() === Side.WHITE && board.validMoves([i, j]).length > 0)
-//             console.log([i, j], "->", board.validMoves([i, j]));
-
-
 // console.log(board.validMoves(whiteKing));
-// console.log(board.movePiece([3, 1], [6, 3]));
-// board.printBoard();
-// console.log(board.undoMove());
 // board.printBoard();
 // console.log();
-// board.printValidSquares(whiteKing);
-// board.printValidSquares([5, 3]);
+// console.log(board.movePiece(whiteKing, [5, 3]));
+// board.printBoard();

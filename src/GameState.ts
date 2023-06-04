@@ -8,10 +8,20 @@ export class GameState {
     private timeWhite: number;
     private timeBlack: number;
 
-    constructor(fen: string, currentTurn: number, timeWhite: number, timeBlack: number) {
-        this.board = new Board(fen);
+    constructor(fen: string, currentTurn: number, timeWhite: number, timeBlack: number, pseudoLegal: Boolean = false) {
+        this.board = new Board(fen, pseudoLegal);
         this.currentTurn = currentTurn;
         this.timeWhite = timeWhite;
         this.timeBlack = timeBlack;
+    }
+
+    movePiece(from: [number, number], to: [number, number]): Boolean {
+        if (this.board.getBoard()[from[0]][from[1]].getSide() != Side.WHITE && this.currentTurn === 0)
+            return false;
+        if (this.board.getBoard()[from[0]][from[1]].getSide() != Side.BLACK && this.currentTurn === 1)
+            return false;
+
+        let moveSuccessful: Boolean = this.board.movePiece(from, to);
+        return moveSuccessful;
     }
 } 

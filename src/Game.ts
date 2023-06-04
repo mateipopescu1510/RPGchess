@@ -11,12 +11,12 @@ export class Game {
     private gameResult: GameResult;
     private gameState: GameState;
 
-    constructor(whiteId: number, blackId: number, fen: string) {
+    constructor(whiteId: number, blackId: number, fen: string, pseudoLegal: Boolean = false) {
         this.gameId = Game.gameIdCounter;
         Game.gameIdCounter++;
         this.whiteId = whiteId;
         this.blackId = blackId;
-        this.gameState = new GameState(fen, 0, INFINITE_TIME, INFINITE_TIME);
+        this.gameState = new GameState(fen, 0, INFINITE_TIME, INFINITE_TIME, pseudoLegal);
         this.gameResult = GameResult.IN_PROGRESS;
     }
 }
