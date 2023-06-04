@@ -16,7 +16,7 @@ export class Board {
     private boardSetup: Piece[][];
     private whiteKingPosition: [number, number];
     private blackKingPosition: [number, number];
-    private lastMove: [[number, number], [number, number], Piece | null, Piece | null]; //[from, to, piece that was moved, what it landed on]
+    private movesList: [[number, number], [number, number], Piece | null, Piece | null][]; //[from, to, piece that was moved, what it landed on]
     private pseudoLegal: Boolean; //If set to true, game is played without enforced legal moves (kings can be captured)
 
     constructor(fen: string, pseudoLegal: Boolean = false) {
@@ -26,7 +26,8 @@ export class Board {
         this.ROWS = 0;
         this.COLUMNS = 0;
         this.boardSetup = [];
-        this.lastMove = [[-1, -1], [-1, -1], null, null];
+        this.movesList = [];
+        this.movesList.push([[-1, -1], [-1, -1], null, null]);
         this.convertFen(fen);
         this.pseudoLegal = pseudoLegal;
     }
@@ -43,18 +44,20 @@ export class Board {
         if (this.pseudoLegal && !this.coordinateInList(this.pseudoLegalMoves([fromRow, fromColumn]), [toRow, toColumn]))
             return false; //Do nothing if game is set to legal moves and destination isn't in the legal moves
 
-        if (this.lastMove[0].toString() != [-1, -1].toString())
+        if (this.movesList[this.movesList.length - 1][0].toString() != [-1, -1].toString())
             //If there's a last move source square
-            this.boardSetup[this.lastMove[0][0]][this.lastMove[0][1]].unhighlightPiece();
+            this.boardSetup[this.movesList[this.movesList.length - 1][0][0]][this.movesList[this.movesList.length - 1][0][1]].unhighlightPiece();
 
-        if (this.lastMove[1].toString() != [-1, -1].toString())
+        if (this.movesList[this.movesList.length - 1][1].toString() != [-1, -1].toString())
             //If there's a last move destination square
-            this.boardSetup[this.lastMove[1][0]][this.lastMove[1][1]].unhighlightPiece();
+            this.boardSetup[this.movesList[this.movesList.length - 1][1][0]][this.movesList[this.movesList.length - 1][1][1]].unhighlightPiece();
 
-        this.lastMove[0] = [fromRow, fromColumn];
-        this.lastMove[1] = [toRow, toColumn];
-        this.lastMove[2] = this.boardSetup[fromRow][fromColumn];
-        this.lastMove[3] = this.boardSetup[toRow][toColumn];
+        this.movesList.push([[fromRow, fromColumn], [toRow, toColumn], this.boardSetup[fromRow][fromColumn], this.boardSetup[toRow][toColumn]]);
+
+        // this.movesList[0] = [fromRow, fromColumn];
+        // this.movesList[1] = [toRow, toColumn];
+        // this.movesList[2] = this.boardSetup[fromRow][fromColumn];
+        // this.movesList[3] = this.boardSetup[toRow][toColumn];
 
         this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn]; //Move the piece to the new square
         this.boardSetup[toRow][toColumn].incrementMoveCounter();
@@ -73,10 +76,15 @@ export class Board {
     }
 
     undoMove(): Boolean {
-        let from = this.lastMove[0];
-        let to = this.lastMove[1];
-        let pieceMoved = this.lastMove[2];
-        let targetPiece = this.lastMove[3];
+        let lastMove: [[number, number], [number, number], Piece | null, Piece | null] | undefined = this.movesList.pop();
+
+        if (lastMove === undefined)
+            return false;
+
+        let from = lastMove[0];
+        let to = lastMove[1];
+        let pieceMoved = lastMove[2];
+        let targetPiece = lastMove[3];
 
         if (pieceMoved === null || targetPiece === null)
             return false;
@@ -568,8 +576,8 @@ export class Board {
         let newFen: string = "";
         this.fen.split("/").forEach((value, index) => {
             //index - 1 because the first row starts at 0 and the first index, 0, represents information about the board size, etc.
-            if (index - 1 != this.lastMove[0][0] && index - 1 != this.lastMove[1][0])
-                //lastMove can be used. By knowing the rows from which the piece left and then landed, all the other rows can just be copied without any changes
+            if (index - 1 != this.movesList[this.movesList.length - 1][0][0] && index - 1 != this.movesList[this.movesList.length - 1][1][0])
+                //movesList can be used. By knowing the rows from which the piece left and then landed, all the other rows can just be copied without any changes
                 newFen += value + "/";
             else {
                 for (let piece of this.boardSetup[index - 1]) {
@@ -610,7 +618,7 @@ export class Board {
     }
 
     getLastMove(): [[number, number], [number, number], Piece | null, Piece | null] {
-        return this.lastMove;
+        return this.movesList[this.movesList.length - 1];
     }
 
     getWhiteKingPosition(): [number, number] {
@@ -667,4 +675,17 @@ export class Board {
 // board.printBoard();
 // console.log();
 // console.log(board.movePiece(whiteKing, [5, 3]));
+// board.printBoard();
+
+// var board: Board = new Board("8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+// console.log(board.movePiece([6, 4], [4, 4]));
+// console.log(board.movePiece([1, 4], [3, 4]));
+// board.printBoard();
+// console.log(board.undoMove());
+// board.printBoard();
+
+// console.log(board.undoMove());
+// board.printBoard();
+
+// console.log(board.undoMove());
 // board.printBoard();
