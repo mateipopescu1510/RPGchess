@@ -1,5 +1,5 @@
 import { Direction, GameResult, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side, PieceAbilities, LEVEL_UP_XP } from './enums.js';
-import { abilitesForPiece, oppositeSide, Piece, sameSide } from './Piece'
+import { oppositeSide, Piece, sameSide } from './Piece'
 import { Board, stringToPiece } from './Board';
 
 
@@ -63,7 +63,7 @@ export class GameState {
             return true;
         }
 
-        if (abilitesForPiece(this.board.getBoard()[row][column]).indexOf(ability) === -1)
+        if (this.board.getBoard()[row][column].possibleAbilities().indexOf(ability) === -1)
             return false;
 
         if (this.board.getBoard()[row][column].addAbility(ability)) {

@@ -350,6 +350,40 @@ export class Board {
 
     pseudoLegalMoves([row, column]: [number, number]): Array<[number, number]> {
         let moves: Array<[number, number]> = [];
+
+        for (let ability of this.boardSetup[row][column].getAbilities()) {
+            // Add moves based on special piece abilities
+            if (ability === PieceAbilities.SKIP)
+                moves.push([row, column]);
+
+            if (ability === PieceAbilities.SCOUT) {
+                let side = this.boardSetup[row][column].getSide();
+                if (side === Side.WHITE && row > 1 &&
+                    this.boardSetup[row - 1][column].getType() === PieceTypes.EMPTY &&
+                    this.boardSetup[row - 2][column].getType() === PieceTypes.EMPTY)
+                    moves.push([row - 2, column]);
+                if (side === Side.BLACK && row < this.ROWS - 2 &&
+                    this.boardSetup[row + 1][column].getType() === PieceTypes.EMPTY &&
+                    this.boardSetup[row + 2][column].getType() === PieceTypes.EMPTY)
+                    moves.push([row + 2, column]);
+            }
+
+            if (ability === PieceAbilities.LONG_HANDS)
+                this.boardSetup[row][column].setRange([2, 1]);
+
+            if (ability === PieceAbilities.COLOR_COMPLEX) {
+                if (column > 0 && !sameSidePiece(this.boardSetup[row][column - 1], this.boardSetup[row][column]))
+                    moves.push([row, column - 1]);
+                if (column < this.COLUMNS - 1 && !sameSidePiece(this.boardSetup[row][column + 1], this.boardSetup[row][column]))
+                    moves.push([row, column + 1]);
+            }
+
+            if (ability === PieceAbilities.HAS_PAWN) {
+                this.boardSetup[row][column].setDirections([Direction.LINE, Direction.PAWN]);
+                this.boardSetup[row][column].setRange([INFINITE_RANGE, 1]);
+            }
+        }
+
         let directions: Direction[] = this.boardSetup[row][column].getDirections();
         let ranges: number[] = this.boardSetup[row][column].getRange();
 
@@ -555,9 +589,7 @@ export class Board {
                 }
             }
         }
-        for (let ability of this.boardSetup[row][column].getAbilities()) {
-            // Add moves based on special piece abilities
-        }
+
         return moves;
     }
 
@@ -773,4 +805,13 @@ export class Board {
         }
         console.log(board);
     }
+
+    printValidMoves([row, column]) {
+        // Only for testing
+        console.log([row, column], "->", this.validMoves([row, column]));
+    }
 }
+// var board: Board = new Board("8 8/k[700]7/4r[501]b[402]2/2p[200]5/8/8/5K[702]2/1P6/8");
+// board.printBoard();
+// console.log();
+// board.printValidSquares([1, 4]);

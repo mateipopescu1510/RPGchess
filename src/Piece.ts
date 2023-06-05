@@ -61,6 +61,11 @@ export class Piece {
         return this.abilities;
     }
 
+    removeAbility(ability: PieceAbilities) {
+        const index = this.abilities.indexOf(ability);
+        this.abilities.splice(index, 1);
+    }
+
     setRange(range: number[]) {
         this.range = range;
     }
@@ -136,44 +141,44 @@ export class Piece {
         return this.initialSquare;
     }
 
+    possibleAbilities(): PieceAbilities[] {
+        if (this.type === PieceTypes.EMPTY)
+            return [];
+
+        let keys = Object.values(PieceAbilities).filter((v) => !isNaN(Number(v)));
+        let possibleAbilities: PieceAbilities[] = [PieceAbilities.NONE];
+        let pieceAbilities = this.abilities;
+
+        for (let key of keys)
+            if (Number(key) >= 100 && Number(key) < 200)
+                possibleAbilities.push(Number(key));
+
+        let pieceMultiplier: number = 1;
+        if (this.type === PieceTypes.PAWN)
+            pieceMultiplier = 2;
+        if (this.type === PieceTypes.KNIGHT)
+            pieceMultiplier = 3;
+        if (this.type === PieceTypes.BISHOP)
+            pieceMultiplier = 4;
+        if (this.type === PieceTypes.ROOK)
+            pieceMultiplier = 5;
+        if (this.type === PieceTypes.QUEEN)
+            pieceMultiplier = 6;
+        if (this.type === PieceTypes.KING)
+            pieceMultiplier = 7;
+
+        for (let key of keys)
+            if (Number(key) >= pieceMultiplier * 100 && Number(key) < (pieceMultiplier + 1) * 100)
+                possibleAbilities.push(Number(key));
+
+        for (let ability of pieceAbilities)
+            possibleAbilities = possibleAbilities.filter((v) => v !== ability);
+
+        return possibleAbilities;
+    }
+
 }
 
-export function abilitesForPiece(piece: Piece): PieceAbilities[] {
-    if (piece.getType() === PieceTypes.EMPTY)
-        return [];
-
-    let keys = Object.values(PieceAbilities).filter((v) => !isNaN(Number(v)));
-    let possibleAbilities: PieceAbilities[] = [PieceAbilities.NONE];
-    let pieceAbilities = piece.getAbilities();
-
-    for (let key of keys)
-        if (Number(key) >= 100 && Number(key) < 200)
-            possibleAbilities.push(Number(key));
-
-    let pieceMultiplier: number = 1;
-    let type = piece.getType();
-    if (type === PieceTypes.PAWN)
-        pieceMultiplier = 2;
-    if (type === PieceTypes.KNIGHT)
-        pieceMultiplier = 3;
-    if (type === PieceTypes.BISHOP)
-        pieceMultiplier = 4;
-    if (type === PieceTypes.ROOK)
-        pieceMultiplier = 5;
-    if (type === PieceTypes.QUEEN)
-        pieceMultiplier = 6;
-    if (type === PieceTypes.KING)
-        pieceMultiplier = 7;
-
-    for (let key of keys)
-        if (Number(key) >= pieceMultiplier * 100 && Number(key) < (pieceMultiplier + 1) * 100)
-            possibleAbilities.push(Number(key));
-
-    for (let ability of pieceAbilities)
-        possibleAbilities = possibleAbilities.filter((v) => v !== ability);
-
-    return possibleAbilities;
-}
 
 export function oppositePiece(piece1: Piece, piece2: Piece): Boolean {
     return piece1.getSide() === Side.WHITE && piece2.getSide() === Side.BLACK ||

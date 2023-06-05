@@ -53,6 +53,7 @@ export enum PieceAbilities {
 
     //Rook abilities [500-599]
     TANK = 500, // if two pieces are on the same line next to each other, they can both be captured
+    HAS_PAWN = 501, // has a pawn that can guard its front left and right
 
     //Queen abilities [600-699]
     BECOME_KING = 600, //becomes piece of interest, king doesn't matter anymore
@@ -60,7 +61,7 @@ export enum PieceAbilities {
     //King abilities [700-799]
     SKIP = 700, // can skip a turn
     FRIENDLY_FIRE = 701, // can capture friendly pieces
-    BLITZKRIEG = 702, // pawns can advance twice at the beginning of the game
+    LONG_HANDS = 702, //can move two squares instead of one
     CASTLING = 703
 }
 
