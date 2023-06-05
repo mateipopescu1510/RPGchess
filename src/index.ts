@@ -10,7 +10,7 @@ import * as login from './loginValidation';
 import * as gameSocket from './gameSocket';
 import * as matchmaking from './matchmaking';
 import { gamesInProgress } from "./gameSocket";
-
+import { LEVEL_UP_XP } from './enums';
 
 const app = express();
 const server = http.createServer(app);
@@ -33,6 +33,16 @@ gameSocket.handleGames(io);
 
 app.get('/', (req, res) => {
     res.render('pages/home');
+});
+
+app.get('/boardstate', (req, res) => {
+    let gameId = req.query.gameId as string;
+    let game = gamesInProgress.get(gameId)!;
+    let data = {fen: game.getGameState().getBoard().getFen(), turn: game.getGameState().getTurn(), levelUpXp: LEVEL_UP_XP, game: game};
+    if(game)
+        res.send(data);
+    else
+        res.send("Game not found");
 });
 
 
