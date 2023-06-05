@@ -1,4 +1,4 @@
-import { Direction, GameResult, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side, PieceAbilities } from './enums.js';
+import { Direction, GameResult, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side, PieceAbilities, LEVEL_UP_XP } from './enums.js';
 import { abilitesForPiece, oppositeSide, Piece, sameSide } from './Piece'
 import { Board, stringToPiece } from './Board';
 
@@ -52,9 +52,22 @@ export class GameState {
         let row: number = coordinate[0];
         let column: number = coordinate[1];
 
+        let level: number = this.board.getBoard()[row][column].getLevel();
+        let currentXP: number = this.board.getBoard()[row][column].getCurrentXP();
+
+        if (ability === PieceAbilities.NONE) {
+            this.board.getBoard()[row][column].setXP(currentXP - LEVEL_UP_XP[level]);
+            this.board.getBoard()[row][column].setLevel(level + 1);
+            this.board.levelUpDone();
+            return true;
+        }
+
         if (abilitesForPiece(this.board.getBoard()[row][column]).indexOf(ability) === -1)
             return false;
+
         if (this.board.getBoard()[row][column].addAbility(ability)) {
+            this.board.getBoard()[row][column].setXP(currentXP - LEVEL_UP_XP[level]);
+            this.board.getBoard()[row][column].setLevel(level + 1);
             this.board.levelUpDone();
             this.board.updateFen();
             return true;
@@ -130,20 +143,5 @@ export class GameState {
         this.currentTurn = 1 - this.currentTurn;
     }
 }
-
-// var board: GameState = new GameState("5 12/k9K[100700]1/5R[500]2q[605]3/12/12/12", 0, INFINITE_TIME, INFINITE_TIME);
-// board.printBoard();
-// console.log(board.getBoard().getFen());
-// console.log(board.movePiece([0, 10], [0, 11]));
-// board.printBoard();
-// console.log(board.getBoard().getFen());
-
-// console.log(board.movePiece([1, 8], [4, 5]));
-// board.printBoard();
-// console.log(board.getBoard().getFen());
-
-// console.log(board.movePiece([1, 5], [4, 5]));
-// board.printBoard();
-// console.log(board.getBoard().getFen());
 
 
