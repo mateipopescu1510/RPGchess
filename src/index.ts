@@ -12,7 +12,6 @@ import * as matchmaking from './matchmaking';
 import { gamesInProgress } from "./gameSocket";
 
 
-// Create Express app
 const app = express();
 const server = http.createServer(app);
 app.set('view engine', 'ejs');
@@ -27,11 +26,15 @@ app.use(cookieParser());
 app.use(express.static('resources'));
 
 
-// MongoDB connect
 mongodb.connectToDb().catch((err) => { console.log(err) });
 
 // create virtual game rooms and handle communications
 gameSocket.handleGames(io);  
+
+app.get('/', (req, res) => {
+    res.render('pages/home');
+});
+
 
 app.get('/game/:gameId', (req, res) => {
     let gameId = req.params.gameId;
@@ -49,7 +52,8 @@ app.get('/joinQueue', (req, res) => {
         userId = uuid.v4(); // Generate a new user ID
         res.cookie('userId', userId); // Set the user ID in a cookie
     }
-   matchmaking.joinQueue(userId, res);
+    let gamemode = req.query.mode as string;
+    matchmaking.joinQueue(userId, gamemode, res);
 });
 
 app.get('/leaveQueue', (req, res) => {
@@ -59,7 +63,8 @@ app.get('/leaveQueue', (req, res) => {
         res.cookie('userId', userId); 
         return;
     }
-    matchmaking.leaveQueue(userId);
+    let gamemode = req.query.mode as string;
+    matchmaking.leaveQueue(userId, gamemode);
 });
 
 app.get('/register', (req, res) => {
@@ -91,5 +96,4 @@ app.post('/login', async (req, res) => {
 
 server.listen(3000, () => {
     console.log('Server started on http://localhost:3000');
-
 });
