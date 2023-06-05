@@ -42,7 +42,7 @@ export class Board {
             return false; //Do nothing if game is set to legal moves and destination isn't in the legal moves
 
         if (this.pseudoLegal && !this.coordinateInList(this.pseudoLegalMoves([fromRow, fromColumn]), [toRow, toColumn]))
-            return false; //Do nothing if game is set to legal moves and destination isn't in the legal moves
+            return false; //Do nothing if game is set to pseudolegal moves and destination isn't in the pseudolegal moves
 
         if (this.getLastMove()[0].toString() != [-1, -1].toString())
             //If there's a last move source square
@@ -57,11 +57,13 @@ export class Board {
         let capturedPieceXP: number = this.boardSetup[toRow][toColumn].getTotalXP();
         this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn]; //Move the piece to the new square
 
-        this.boardSetup[toRow][toColumn].incrementMoveCounter();
-        this.mustLevelUp = this.boardSetup[toRow][toColumn].addXP(capturedPieceXP);
+        if (!this.checkPawnPromotion([toRow, toColumn])) {
+            this.boardSetup[toRow][toColumn].incrementMoveCounter();
 
-        if (this.mustLevelUp === true)
-            this.mustLevelUp = [toRow, toColumn];
+            if (this.mustLevelUp === true)
+                this.mustLevelUp = [toRow, toColumn];
+        }
+        this.mustLevelUp = this.boardSetup[toRow][toColumn].addXP(capturedPieceXP);
 
         this.boardSetup[fromRow][fromColumn] = new Piece(); //Create a new empty square where the piece was previously
 
@@ -553,10 +555,29 @@ export class Board {
                 }
             }
         }
-        for (let ability in this.boardSetup[row][column].getAbilities()) {
+        for (let ability of this.boardSetup[row][column].getAbilities()) {
             // Add moves based on special piece abilities
         }
         return moves;
+    }
+
+    private checkPawnPromotion([row, column]): Boolean {
+        // Returns true if pawn has reached last rank and turns it into a queen
+        if (this.boardSetup[row][column].getType() != PieceTypes.PAWN)
+            return false;
+
+        let side = this.boardSetup[row][column].getSide();
+
+        if (side === Side.WHITE && row != 0)
+            return false;
+
+        if (side === Side.BLACK && row != this.ROWS - 1)
+            return false;
+
+        this.boardSetup[row][column] = new Piece(PieceTypes.QUEEN, side, [row, column],
+            0, 0, [INFINITE_RANGE, INFINITE_RANGE], [Direction.LINE, Direction.DIAGONAL], []);
+
+        return true;
     }
 
     private convertFen(fen: string) {

@@ -144,4 +144,15 @@ export class GameState {
     }
 }
 
+var board: GameState = new GameState("8 8/8/2P2pk1/8/8/8/6K1/3p4/8", 0, -1, -1);
+
+board.printBoard();
+
+console.log(board.movePiece([1, 2], [0, 2]));
+board.printBoard();
+
+console.log(board.movePiece([6, 3], [7, 3]));
+board.printBoard();
+
+board.getBoard().printAllValidMoves(Side.WHITE);
 
