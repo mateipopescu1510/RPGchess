@@ -58,6 +58,10 @@ export class Piece {
         return this.directions;
     }
 
+    setAbilities(pieceAbilities: PieceAbilities[]) {
+        this.abilities = pieceAbilities;
+    }
+
     getAbilities(): PieceAbilities[] {
         return this.abilities;
     }

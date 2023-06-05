@@ -56,6 +56,7 @@ export class GameState {
             return false;
         if (this.board.getBoard()[row][column].addAbility(ability)) {
             this.board.levelUpDone();
+            this.board.updateFen();
             return true;
         }
         return false;
@@ -130,23 +131,19 @@ export class GameState {
     }
 }
 
-// var board: GameState = new GameState("8 8/3r2k1/6p1/5n1p/8/3p4/7P/3R2P1/5RK1", 0, -1, -1);
+// var board: GameState = new GameState("5 12/k9K[100700]1/5R[500]2q[605]3/12/12/12", 0, INFINITE_TIME, INFINITE_TIME);
 // board.printBoard();
-// console.log("must level up", board.getBoard().pieceMustLevelUp());
-
-// console.log(board.movePiece([7, 5], [7, 3]));
+// console.log(board.getBoard().getFen());
+// console.log(board.movePiece([0, 10], [0, 11]));
 // board.printBoard();
-// console.log("must level up", board.getBoard().pieceMustLevelUp());
+// console.log(board.getBoard().getFen());
 
-// console.log(board.getBoard().getBoard()[7][3].getAbilities());
-// console.log("level up", board.levelUp(PieceAbilities.TANK));
-// console.log(board.getBoard().getBoard()[7][3].getAbilities());
-
-// console.log("must level up", board.getBoard().pieceMustLevelUp());
-// console.log(board.getBoard().getBoard()[7][3].getAbilities());
-
-// console.log(board.movePiece([0, 6], [0, 7]));
+// console.log(board.movePiece([1, 8], [4, 5]));
 // board.printBoard();
-// console.log("must level up", board.getBoard().pieceMustLevelUp());
+// console.log(board.getBoard().getFen());
+
+// console.log(board.movePiece([1, 5], [4, 5]));
+// board.printBoard();
+// console.log(board.getBoard().getFen());
 
 
