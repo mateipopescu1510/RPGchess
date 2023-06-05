@@ -45,7 +45,7 @@ export class GameState {
         return false;
     }
 
-    levelUp(ability: PieceAbilities): Boolean {
+    levelUp(ability: string): Boolean {
         let coordinate = this.board.pieceMustLevelUp();
         if (coordinate === false)
             return false;
@@ -56,17 +56,17 @@ export class GameState {
         let level: number = this.board.getBoard()[row][column].getLevel();
         let currentXP: number = this.board.getBoard()[row][column].getCurrentXP();
 
-        if (ability === PieceAbilities.NONE) {
+        if (PieceAbilities[ability] === PieceAbilities.NONE) {
             this.board.getBoard()[row][column].setXP(currentXP - LEVEL_UP_XP[level]);
             this.board.getBoard()[row][column].setLevel(level + 1);
             this.board.levelUpDone();
             return true;
         }
 
-        if (this.board.getBoard()[row][column].possibleAbilities().indexOf(ability) === -1)
+        if (this.board.getBoard()[row][column].possibleAbilities().indexOf(PieceAbilities[ability]) === -1)
             return false;
 
-        if (this.board.getBoard()[row][column].addAbility(ability)) {
+        if (this.board.getBoard()[row][column].addAbility(PieceAbilities[ability])) {
             this.board.getBoard()[row][column].setXP(currentXP - LEVEL_UP_XP[level]);
             this.board.getBoard()[row][column].setLevel(level + 1);
             this.board.levelUpDone();
@@ -144,6 +144,4 @@ export class GameState {
         this.currentTurn = 1 - this.currentTurn;
     }
 }
-
-
 

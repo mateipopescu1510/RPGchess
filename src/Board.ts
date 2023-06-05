@@ -811,7 +811,9 @@ export class Board {
         console.log([row, column], "->", this.validMoves([row, column]));
     }
 }
-// var board: Board = new Board("8 8/k[700]7/4r[501]b[402]2/2p[200]5/8/8/5K[702]2/1P6/8");
+// var board: Board = new Board("8 8/k[700]7/4r[501]b[402]2/2p[200]N4/8/8/5K[702]2/1P6/8");
 // board.printBoard();
 // console.log();
 // board.printValidSquares([1, 4]);
+// console.log(board.getBoard()[1][4].getDirections());
+
