@@ -146,8 +146,6 @@ export function abilitesForPiece(piece: Piece): PieceAbilities[] {
     let keys = Object.values(PieceAbilities).filter((v) => !isNaN(Number(v)));
     let possibleAbilities: PieceAbilities[] = [];
     let pieceAbilities = piece.getAbilities();
-    // console.log(pieceAbilities);
-    // console.log(PieceAbilities[pieceAbilities[0]]);
 
     for (let key of keys)
         if (Number(key) >= 100 && Number(key) < 200)

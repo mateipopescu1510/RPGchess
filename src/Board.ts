@@ -570,7 +570,7 @@ export class Board {
                 this.boardSetup = [];
                 for (let i = 0; i < this.ROWS; i++) {
                     this.boardSetup[i] = [];
-                    for (let j = 0; j < this.ROWS; j++) {
+                    for (let j = 0; j < this.COLUMNS; j++) {
                         this.boardSetup[i][j] = new Piece();
                     }
                 }
@@ -739,3 +739,7 @@ export class Board {
 // var board: Board = new Board("8 8/1k4r1/8/8/8/8/7p/7P/7K", true);
 // board.printBoard();
 // console.log(board.sideHasLegalMoves(Side.WHITE));
+
+// var board: Board = new Board("5 11k/12/12/12/12/12");
+// board.printBoard();
+
