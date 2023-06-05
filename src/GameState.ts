@@ -27,6 +27,7 @@ export class GameState {
 
         if (this.board.getBoard()[from[0]][from[1]].getSide() != Side.WHITE && this.currentTurn === 0)
             return false;
+
         if (this.board.getBoard()[from[0]][from[1]].getSide() != Side.BLACK && this.currentTurn === 1)
             return false;
 
@@ -51,17 +52,14 @@ export class GameState {
         let row: number = coordinate[0];
         let column: number = coordinate[1];
 
-        if (abilitesForPiece(this.board.getBoard()[row][column]).indexOf(ability) != -1)
+        if (abilitesForPiece(this.board.getBoard()[row][column]).indexOf(ability) === -1)
             return false;
-
         if (this.board.getBoard()[row][column].addAbility(ability)) {
             this.board.levelUpDone();
             return true;
         }
         return false;
     }
-
-
 
     getTurn(): number {
         return this.currentTurn;
@@ -142,6 +140,8 @@ export class GameState {
 
 // console.log(board.getBoard().getBoard()[7][3].getAbilities());
 // console.log("level up", board.levelUp(PieceAbilities.TANK));
+// console.log(board.getBoard().getBoard()[7][3].getAbilities());
+
 // console.log("must level up", board.getBoard().pieceMustLevelUp());
 // console.log(board.getBoard().getBoard()[7][3].getAbilities());
 
