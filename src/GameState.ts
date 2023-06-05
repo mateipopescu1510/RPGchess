@@ -51,14 +51,13 @@ export class GameState {
         let row: number = coordinate[0];
         let column: number = coordinate[1];
 
-        if (abilitesForPiece(this.board.getBoard()[row][column]))
+        if (abilitesForPiece(this.board.getBoard()[row][column]).indexOf(ability) != -1)
+            return false;
 
-
-
-            if (this.board.getBoard()[row][column].addAbility(ability)) {
-                this.board.levelUpDone();
-                return true;
-            }
+        if (this.board.getBoard()[row][column].addAbility(ability)) {
+            this.board.levelUpDone();
+            return true;
+        }
         return false;
     }
 
