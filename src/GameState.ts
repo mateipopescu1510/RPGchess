@@ -33,7 +33,8 @@ export class GameState {
 
         if (this.board.movePiece(from, to)) {
             this.changeTurn();
-            if (this.stalemate())
+
+            if (!this.board.pseudoLegalGame() && this.stalemate())
                 this.gameResult = GameResult.DRAW;
 
             if (this.checkmate())
@@ -143,5 +144,6 @@ export class GameState {
         this.currentTurn = 1 - this.currentTurn;
     }
 }
+
 
 
