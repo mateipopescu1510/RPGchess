@@ -1,45 +1,4 @@
-import { INFINITE_RANGE, Direction, Side, PieceTypes, PieceAbilities } from "./enums";
-
-export function oppositePiece(piece1: Piece, piece2: Piece): Boolean {
-    return piece1.getSide() === Side.WHITE && piece2.getSide() === Side.BLACK ||
-        piece1.getSide() === Side.BLACK && piece2.getSide() === Side.WHITE
-
-}
-
-export function oppositeSide(side1: Side, side2: Side): Boolean {
-    return side1 === Side.WHITE && side2 === Side.BLACK ||
-        side1 === Side.BLACK && side2 === Side.WHITE;
-}
-
-export function sameSidePiece(piece1: Piece, piece2: Piece): Boolean {
-    return piece1.getSide() === Side.WHITE && piece2.getSide() === Side.WHITE ||
-        piece1.getSide() === Side.BLACK && piece2.getSide() === Side.BLACK;
-}
-
-export function sameSide(side1: Side, side2: Side) {
-    return side1 === Side.WHITE && side2 === Side.WHITE ||
-        side1 === Side.BLACK && side2 === Side.BLACK;
-}
-
-export function isQueenOrRook(piece: Piece): Boolean {
-    return piece.getType() === PieceTypes.QUEEN || piece.getType() === PieceTypes.ROOK;
-}
-
-export function isQueenOrBishop(piece: Piece): Boolean {
-    return piece.getType() === PieceTypes.QUEEN || piece.getType() === PieceTypes.BISHOP;
-}
-
-export function isKnight(piece: Piece): Boolean {
-    return piece.getType() === PieceTypes.KNIGHT;
-}
-
-export function isPawn(piece: Piece): Boolean {
-    return piece.getType() === PieceTypes.PAWN;
-}
-
-export function isKing(piece: Piece) {
-    return piece.getType() === PieceTypes.KING;
-}
+import { INFINITE_RANGE, Direction, Side, PieceTypes, PieceAbilities, LEVEL_UP_XP, PER_MOVE_XP, CAPTURE_MULTIPLIER } from "./enums";
 
 export class Piece {
     private type: PieceTypes;
@@ -71,12 +30,36 @@ export class Piece {
         this.highlighted = false;
     }
 
+    addXP(capturedPieceXP: number): Boolean {
+        this.currentXP += PER_MOVE_XP;
+        this.currentXP += Math.floor(CAPTURE_MULTIPLIER * capturedPieceXP);
+
+        if (LEVEL_UP_XP[this.level] <= this.currentXP) {
+            this.currentXP -= LEVEL_UP_XP[this.level];
+            this.level++;
+            return true;
+        }
+        return false;
+    }
+
+    addAbility(ability: PieceAbilities): Boolean {
+        if (this.abilities.indexOf(ability) != -1)
+            return false;
+
+        this.abilities.push(ability);
+        return true;
+    }
+
     setDirections(directions: Direction[]) {
         this.directions = directions;
     }
 
     getDirections(): Direction[] {
         return this.directions;
+    }
+
+    getAbilities(): PieceAbilities[] {
+        return this.abilities;
     }
 
     setRange(range: number[]) {
@@ -99,8 +82,15 @@ export class Piece {
         this.currentXP = xp;
     }
 
-    getXP(): number {
+    getCurrentXP(): number {
         return this.currentXP;
+    }
+
+    getTotalXP(): number {
+        let totalXP: number = this.currentXP;
+        for (let lvl = 0; lvl < this.level; lvl++)
+            totalXP += LEVEL_UP_XP[lvl];
+        return totalXP;
     }
 
     setType(type: PieceTypes) {
@@ -147,9 +137,84 @@ export class Piece {
         return this.initialSquare;
     }
 
+}
 
-    // addAbility(ability: PieceAbilities) {
-    // if (!this.abilities.includes(ability))
-    // this.abilities.push(ability);
-    // }
+export function abilitesForPiece(piece: Piece): PieceAbilities[] {
+    if (piece.getType() === PieceTypes.EMPTY)
+        return [];
+
+    let keys = Object.values(PieceAbilities).filter((v) => !isNaN(Number(v)));
+    let possibleAbilities: PieceAbilities[] = [];
+    let pieceAbilities = piece.getAbilities();
+    // console.log(pieceAbilities);
+    // console.log(PieceAbilities[pieceAbilities[0]]);
+
+    for (let key of keys)
+        if (Number(key) >= 100 && Number(key) < 200)
+            possibleAbilities.push(Number(key));
+
+    let pieceMultiplier: number = 1;
+    let type = piece.getType();
+    if (type === PieceTypes.PAWN)
+        pieceMultiplier = 2;
+    if (type === PieceTypes.KNIGHT)
+        pieceMultiplier = 3;
+    if (type === PieceTypes.BISHOP)
+        pieceMultiplier = 4;
+    if (type === PieceTypes.ROOK)
+        pieceMultiplier = 5;
+    if (type === PieceTypes.QUEEN)
+        pieceMultiplier = 6;
+    if (type === PieceTypes.KING)
+        pieceMultiplier = 7;
+
+    for (let key of keys)
+        if (Number(key) >= pieceMultiplier * 100 && Number(key) < (pieceMultiplier + 1) * 100)
+            possibleAbilities.push(Number(key));
+
+    for (let ability of pieceAbilities)
+        possibleAbilities = possibleAbilities.filter((v) => v !== ability);
+
+    return possibleAbilities;
+}
+
+export function oppositePiece(piece1: Piece, piece2: Piece): Boolean {
+    return piece1.getSide() === Side.WHITE && piece2.getSide() === Side.BLACK ||
+        piece1.getSide() === Side.BLACK && piece2.getSide() === Side.WHITE
+
+}
+
+export function oppositeSide(side1: Side, side2: Side): Boolean {
+    return side1 === Side.WHITE && side2 === Side.BLACK ||
+        side1 === Side.BLACK && side2 === Side.WHITE;
+}
+
+export function sameSidePiece(piece1: Piece, piece2: Piece): Boolean {
+    return piece1.getSide() === Side.WHITE && piece2.getSide() === Side.WHITE ||
+        piece1.getSide() === Side.BLACK && piece2.getSide() === Side.BLACK;
+}
+
+export function sameSide(side1: Side, side2: Side) {
+    return side1 === Side.WHITE && side2 === Side.WHITE ||
+        side1 === Side.BLACK && side2 === Side.BLACK;
+}
+
+export function isQueenOrRook(piece: Piece): Boolean {
+    return piece.getType() === PieceTypes.QUEEN || piece.getType() === PieceTypes.ROOK;
+}
+
+export function isQueenOrBishop(piece: Piece): Boolean {
+    return piece.getType() === PieceTypes.QUEEN || piece.getType() === PieceTypes.BISHOP;
+}
+
+export function isKnight(piece: Piece): Boolean {
+    return piece.getType() === PieceTypes.KNIGHT;
+}
+
+export function isPawn(piece: Piece): Boolean {
+    return piece.getType() === PieceTypes.PAWN;
+}
+
+export function isKing(piece: Piece) {
+    return piece.getType() === PieceTypes.KING;
 }

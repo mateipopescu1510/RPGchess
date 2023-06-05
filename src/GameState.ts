@@ -1,5 +1,5 @@
-import { Direction, GameResult, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side } from './enums.js';
-import { oppositeSide, Piece, sameSide } from './Piece'
+import { Direction, GameResult, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side, PieceAbilities } from './enums.js';
+import { abilitesForPiece, oppositeSide, Piece, sameSide } from './Piece'
 import { Board, stringToPiece } from './Board';
 
 
@@ -22,6 +22,9 @@ export class GameState {
         if (this.gameResult != GameResult.IN_PROGRESS)
             return false;
 
+        if (this.board.pieceMustLevelUp())
+            return false;
+
         if (this.board.getBoard()[from[0]][from[1]].getSide() != Side.WHITE && this.currentTurn === 0)
             return false;
         if (this.board.getBoard()[from[0]][from[1]].getSide() != Side.BLACK && this.currentTurn === 1)
@@ -40,6 +43,26 @@ export class GameState {
         return false;
     }
 
+    levelUp(ability: PieceAbilities): Boolean {
+        let coordinate = this.board.pieceMustLevelUp();
+        if (coordinate === false)
+            return false;
+
+        let row: number = coordinate[0];
+        let column: number = coordinate[1];
+
+        if (abilitesForPiece(this.board.getBoard()[row][column]))
+
+
+
+            if (this.board.getBoard()[row][column].addAbility(ability)) {
+                this.board.levelUpDone();
+                return true;
+            }
+        return false;
+    }
+
+
 
     getTurn(): number {
         return this.currentTurn;
@@ -48,24 +71,22 @@ export class GameState {
     takeback(): Boolean {
         let undoSuccessful: Boolean = this.board.undoMove();
         if (undoSuccessful) {
-            this.currentTurn = 1 - this.currentTurn;
+            this.changeTurn();
             return true;
         }
         return false;
     }
 
     checkmate(): Boolean {
-        if (this.board.pseudoLegalGame()) {
-            // If game is set to pseudolegal, checkmate is when the enemy king is captured
-            let lastCaptured = this.board.getLastMove()[1];
-            if (this.currentTurn === 1 && lastCaptured.toString() === this.board.getBlackKingPosition().toString())
-                return true;
+        let lastCaptured = this.board.getLastMove()[1];
+        if (this.currentTurn === 1 && lastCaptured.toString() === this.board.getBlackKingPosition().toString())
+            return true;
 
-            if (this.currentTurn === 0 && lastCaptured.toString() === this.board.getWhiteKingPosition().toString())
-                return true;
+        if (this.currentTurn === 0 && lastCaptured.toString() === this.board.getWhiteKingPosition().toString())
+            return true;
 
+        if (this.board.pseudoLegalGame())
             return false;
-        }
         // If game is set to not pseudolegal, checkmate is when the king is in check and has no valid moves
 
         if (this.currentTurn === 0 &&
@@ -103,22 +124,30 @@ export class GameState {
         this.board.printBoard();
     }
 
+    getBoard(): Board {
+        return this.board;
+    }
+
     changeTurn() {
         this.currentTurn = 1 - this.currentTurn;
     }
 }
 
-// var board: GameState = new GameState("8 8/kr6/8/8/8/8/7p/7P/6BK", 1, -1, -1);
+// var board: GameState = new GameState("8 8/3r2k1/6p1/5n1p/8/3p4/7P/3R2P1/5RK1", 0, -1, -1);
 // board.printBoard();
-// console.log(board.movePiece([0, 1], [7, 1]));
-// console.log(board.movePiece([7, 1], [7, 5]));
+// console.log("must level up", board.getBoard().pieceMustLevelUp());
 
+// console.log(board.movePiece([7, 5], [7, 3]));
 // board.printBoard();
-// console.log("stalemate", board.stalemate());
-// console.log("checkmate", board.checkmate());
-// console.log("gameResult", board.getGameResult());
+// console.log("must level up", board.getBoard().pieceMustLevelUp());
 
-// console.log(board.movePiece([7, 6], [6, 5]));
+// console.log(board.getBoard().getBoard()[7][3].getAbilities());
+// console.log("level up", board.levelUp(PieceAbilities.TANK));
+// console.log("must level up", board.getBoard().pieceMustLevelUp());
+// console.log(board.getBoard().getBoard()[7][3].getAbilities());
+
+// console.log(board.movePiece([0, 6], [0, 7]));
 // board.printBoard();
+// console.log("must level up", board.getBoard().pieceMustLevelUp());
 
 

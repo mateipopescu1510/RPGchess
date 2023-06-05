@@ -18,6 +18,7 @@ export class Board {
     private blackKingPosition: [number, number];
     private movesList: [[number, number], [number, number], Piece | null, Piece | null][]; //[from, to, piece that was moved, what it landed on]
     private pseudoLegal: Boolean; //If set to true, game is played without enforced legal moves (kings can be captured)
+    private mustLevelUp: Boolean | [number, number];
 
     constructor(fen: string, pseudoLegal: Boolean = false) {
         this.fen = fen;
@@ -30,6 +31,7 @@ export class Board {
         this.movesList.push([[-1, -1], [-1, -1], null, null]);
         this.convertFen(fen);
         this.pseudoLegal = pseudoLegal;
+        this.mustLevelUp = false;
     }
 
     movePiece([fromRow, fromColumn]: [number, number], [toRow, toColumn]: [number, number]): Boolean {
@@ -42,23 +44,25 @@ export class Board {
         if (this.pseudoLegal && !this.coordinateInList(this.pseudoLegalMoves([fromRow, fromColumn]), [toRow, toColumn]))
             return false; //Do nothing if game is set to legal moves and destination isn't in the legal moves
 
-        if (this.movesList[this.movesList.length - 1][0].toString() != [-1, -1].toString())
+        if (this.getLastMove()[0].toString() != [-1, -1].toString())
             //If there's a last move source square
-            this.boardSetup[this.movesList[this.movesList.length - 1][0][0]][this.movesList[this.movesList.length - 1][0][1]].unhighlightPiece();
+            this.boardSetup[this.getLastMove()[0][0]][this.getLastMove()[0][1]].unhighlightPiece();
 
-        if (this.movesList[this.movesList.length - 1][1].toString() != [-1, -1].toString())
+        if (this.getLastMove()[1].toString() != [-1, -1].toString())
             //If there's a last move destination square
-            this.boardSetup[this.movesList[this.movesList.length - 1][1][0]][this.movesList[this.movesList.length - 1][1][1]].unhighlightPiece();
+            this.boardSetup[this.getLastMove()[1][0]][this.getLastMove()[1][1]].unhighlightPiece();
 
         this.movesList.push([[fromRow, fromColumn], [toRow, toColumn], this.boardSetup[fromRow][fromColumn], this.boardSetup[toRow][toColumn]]);
 
-        // this.movesList[0] = [fromRow, fromColumn];
-        // this.movesList[1] = [toRow, toColumn];
-        // this.movesList[2] = this.boardSetup[fromRow][fromColumn];
-        // this.movesList[3] = this.boardSetup[toRow][toColumn];
-
+        let capturedPieceXP: number = this.boardSetup[toRow][toColumn].getTotalXP();
         this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn]; //Move the piece to the new square
+
         this.boardSetup[toRow][toColumn].incrementMoveCounter();
+        this.mustLevelUp = this.boardSetup[toRow][toColumn].addXP(capturedPieceXP);
+
+        if (this.mustLevelUp === true)
+            this.mustLevelUp = [toRow, toColumn];
+
         this.boardSetup[fromRow][fromColumn] = new Piece(); //Create a new empty square where the piece was previously
 
         if (this.boardSetup[toRow][toColumn].getType() === PieceTypes.KING)
@@ -348,7 +352,7 @@ export class Board {
         let ranges: number[] = this.boardSetup[row][column].getRange();
 
         for (let index in directions) {
-            //Do for every direction, for example, the king's directions are [LINE, DIAGONAL]. Every direction has a range associated, in this case, [1, 1].
+            // Do for every direction, for example, the king's directions are [LINE, DIAGONAL]. Every direction has a range associated, in this case, [1, 1].
             switch (directions[index]) {
 
                 case Direction.LINE: {
@@ -549,6 +553,9 @@ export class Board {
                 }
             }
         }
+        for (let ability in this.boardSetup[row][column].getAbilities()) {
+            // Add moves based on special piece abilities
+        }
         return moves;
     }
 
@@ -682,6 +689,14 @@ export class Board {
 
     getBlackKingPosition(): [number, number] {
         return this.blackKingPosition;
+    }
+
+    pieceMustLevelUp(): Boolean | [number, number] {
+        return this.mustLevelUp;
+    }
+
+    levelUpDone() {
+        this.mustLevelUp = false;
     }
 
     pseudoLegalGame(): Boolean {
