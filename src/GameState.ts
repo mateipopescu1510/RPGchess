@@ -4,7 +4,7 @@ import { Board, stringToPiece } from './Board';
 
 
 export class GameState {
-    board: Board;
+    private board: Board;
     private currentTurn: number; //0 for white, 1 for black
     private timeWhite: number;
     private timeBlack: number;
@@ -28,7 +28,7 @@ export class GameState {
             return false;
 
         if (this.board.movePiece(from, to)) {
-            this.currentTurn = 1 - this.currentTurn;
+            this.changeTurn();
             if (this.stalemate())
                 this.gameResult = GameResult.DRAW;
 
@@ -109,17 +109,16 @@ export class GameState {
 }
 
 // var board: GameState = new GameState("8 8/kr6/8/8/8/8/7p/7P/6BK", 1, -1, -1);
+// board.printBoard();
+// console.log(board.movePiece([0, 1], [7, 1]));
+// console.log(board.movePiece([7, 1], [7, 5]));
 
-// console.log(game.takeback());
-// game.printBoard();
+// board.printBoard();
+// console.log("stalemate", board.stalemate());
+// console.log("checkmate", board.checkmate());
+// console.log("gameResult", board.getGameResult());
 
-// console.log(game.movePiece([0, 6], [2, 5]));
-// game.printBoard();
-
-// console.log(game.takeback());
-// game.printBoard();
-
-// console.log(game.movePiece([0, 6], [2, 5]));
-// game.printBoard();
+// console.log(board.movePiece([7, 6], [6, 5]));
+// board.printBoard();
 
 
