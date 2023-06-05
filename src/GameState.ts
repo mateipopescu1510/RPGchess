@@ -1,4 +1,4 @@
-import { Direction, GameResult, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side, PieceAbilities } from './enums.js';
+import { Direction, GameResult, INFINITE_RANGE, INFINITE_TIME, PieceTypes, Side, PieceAbilities, LEVEL_UP_XP } from './enums.js';
 import { abilitesForPiece, oppositeSide, Piece, sameSide } from './Piece'
 import { Board, stringToPiece } from './Board';
 
@@ -52,10 +52,24 @@ export class GameState {
         let row: number = coordinate[0];
         let column: number = coordinate[1];
 
+        let level: number = this.board.getBoard()[row][column].getLevel();
+        let currentXP: number = this.board.getBoard()[row][column].getCurrentXP();
+
+        if (ability === PieceAbilities.NONE) {
+            this.board.getBoard()[row][column].setXP(currentXP - LEVEL_UP_XP[level]);
+            this.board.getBoard()[row][column].setLevel(level + 1);
+            this.board.levelUpDone();
+            return true;
+        }
+
         if (abilitesForPiece(this.board.getBoard()[row][column]).indexOf(ability) === -1)
             return false;
+
         if (this.board.getBoard()[row][column].addAbility(ability)) {
+            this.board.getBoard()[row][column].setXP(currentXP - LEVEL_UP_XP[level]);
+            this.board.getBoard()[row][column].setLevel(level + 1);
             this.board.levelUpDone();
+            this.board.updateFen();
             return true;
         }
         return false;
@@ -129,24 +143,5 @@ export class GameState {
         this.currentTurn = 1 - this.currentTurn;
     }
 }
-
-// var board: GameState = new GameState("8 8/3r2k1/6p1/5n1p/8/3p4/7P/3R2P1/5RK1", 0, -1, -1);
-// board.printBoard();
-// console.log("must level up", board.getBoard().pieceMustLevelUp());
-
-// console.log(board.movePiece([7, 5], [7, 3]));
-// board.printBoard();
-// console.log("must level up", board.getBoard().pieceMustLevelUp());
-
-// console.log(board.getBoard().getBoard()[7][3].getAbilities());
-// console.log("level up", board.levelUp(PieceAbilities.TANK));
-// console.log(board.getBoard().getBoard()[7][3].getAbilities());
-
-// console.log("must level up", board.getBoard().pieceMustLevelUp());
-// console.log(board.getBoard().getBoard()[7][3].getAbilities());
-
-// console.log(board.movePiece([0, 6], [0, 7]));
-// board.printBoard();
-// console.log("must level up", board.getBoard().pieceMustLevelUp());
 
 

@@ -1,4 +1,4 @@
-import { Direction, INFINITE_RANGE, PieceTypes, Side } from './enums';
+import { Direction, INFINITE_RANGE, PieceAbilities, PieceTypes, Side } from './enums';
 import { isQueenOrBishop, isQueenOrRook, isKing, isKnight, isPawn, oppositePiece, Piece, sameSidePiece, sameSide, oppositeSide } from './Piece'
 
 export function stringToPiece(piece: string): PieceTypes {
@@ -42,7 +42,7 @@ export class Board {
             return false; //Do nothing if game is set to legal moves and destination isn't in the legal moves
 
         if (this.pseudoLegal && !this.coordinateInList(this.pseudoLegalMoves([fromRow, fromColumn]), [toRow, toColumn]))
-            return false; //Do nothing if game is set to legal moves and destination isn't in the legal moves
+            return false; //Do nothing if game is set to pseudolegal moves and destination isn't in the pseudolegal moves
 
         if (this.getLastMove()[0].toString() != [-1, -1].toString())
             //If there's a last move source square
@@ -57,11 +57,13 @@ export class Board {
         let capturedPieceXP: number = this.boardSetup[toRow][toColumn].getTotalXP();
         this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn]; //Move the piece to the new square
 
-        this.boardSetup[toRow][toColumn].incrementMoveCounter();
-        this.mustLevelUp = this.boardSetup[toRow][toColumn].addXP(capturedPieceXP);
+        if (!this.checkPawnPromotion([toRow, toColumn])) {
+            this.boardSetup[toRow][toColumn].incrementMoveCounter();
 
-        if (this.mustLevelUp === true)
-            this.mustLevelUp = [toRow, toColumn];
+            if (this.mustLevelUp === true)
+                this.mustLevelUp = [toRow, toColumn];
+        }
+        this.mustLevelUp = this.boardSetup[toRow][toColumn].addXP(capturedPieceXP);
 
         this.boardSetup[fromRow][fromColumn] = new Piece(); //Create a new empty square where the piece was previously
 
@@ -553,10 +555,29 @@ export class Board {
                 }
             }
         }
-        for (let ability in this.boardSetup[row][column].getAbilities()) {
+        for (let ability of this.boardSetup[row][column].getAbilities()) {
             // Add moves based on special piece abilities
         }
         return moves;
+    }
+
+    private checkPawnPromotion([row, column]): Boolean {
+        // Returns true if pawn has reached last rank and turns it into a queen
+        if (this.boardSetup[row][column].getType() != PieceTypes.PAWN)
+            return false;
+
+        let side = this.boardSetup[row][column].getSide();
+
+        if (side === Side.WHITE && row != 0)
+            return false;
+
+        if (side === Side.BLACK && row != this.ROWS - 1)
+            return false;
+
+        this.boardSetup[row][column] = new Piece(PieceTypes.QUEEN, side, [row, column],
+            0, 0, [INFINITE_RANGE, INFINITE_RANGE], [Direction.LINE, Direction.DIAGONAL], []);
+
+        return true;
     }
 
     private convertFen(fen: string) {
@@ -570,20 +591,34 @@ export class Board {
                 this.boardSetup = [];
                 for (let i = 0; i < this.ROWS; i++) {
                     this.boardSetup[i] = [];
-                    for (let j = 0; j < this.ROWS; j++) {
+                    for (let j = 0; j < this.COLUMNS; j++) {
                         this.boardSetup[i][j] = new Piece();
                     }
                 }
             }
             else {
-                let splitted = value.split("");
                 let idx = 0;
-                for (let elem of splitted) {
-                    let piece: PieceTypes = stringToPiece(elem.toLowerCase()); //Convert the character to a piece type
+                let emptySquares = 0;
+                for (let i = 0; i < value.length; i++) {
+                    let piece: PieceTypes = stringToPiece(value[i].toLowerCase()); //Convert the character to a piece type
                     if (!(piece === PieceTypes.EMPTY)) {
-                        let side: Side = (elem === elem.toLowerCase() ? Side.BLACK : Side.WHITE);
+                        idx += emptySquares;
+                        emptySquares = 0;
 
+                        let side: Side = (value[i] === value[i].toLowerCase() ? Side.BLACK : Side.WHITE);
                         this.boardSetup[index - 1][idx] = new Piece(piece, side, [index - 1, idx]); //Third argument is the piece's initial square
+
+                        let pieceAbilities: PieceAbilities[] = [];
+                        if (value[i + 1] === "[") {
+                            i += 2;
+                            while (value[i] != "]") {
+                                let abilityNumber = parseInt(value[i] + value[i + 1] + value[i + 2]);
+                                if (PieceAbilities[abilityNumber] != undefined)
+                                    pieceAbilities.push(abilityNumber);
+                                i += 3;
+                            }
+                        }
+                        this.boardSetup[index - 1][idx].setAbilities(pieceAbilities);
 
                         switch (piece) {
                             //Set the directions and ranges for each piece type (currently only for the base chess game)
@@ -626,7 +661,7 @@ export class Board {
                     }
                     else {
                         //If it gets to this else, it means it found a number which represents that many empty squares, so skip ahead by that many slots
-                        idx += Number(elem);
+                        emptySquares = 10 * emptySquares + Number(value[i]);
                     }
                 }
 
@@ -634,18 +669,27 @@ export class Board {
         })
     }
 
-    private updateFen() {
+    updateFen() {
         let newFen: string = "";
         this.fen.split("/").forEach((value, index) => {
             //index - 1 because the first row starts at 0 and the first index, 0, represents information about the board size, etc.
-            if (index - 1 != this.movesList[this.movesList.length - 1][0][0] && index - 1 != this.movesList[this.movesList.length - 1][1][0])
-                //movesList can be used. By knowing the rows from which the piece left and then landed, all the other rows can just be copied without any changes
+            if (index - 1 != this.getLastMove()[0][0] && index - 1 != this.getLastMove()[1][0])
+                //lastMove can be used. By knowing the rows from which the piece left and then landed, all the other rows can just be copied without any changes
                 newFen += value + "/";
             else {
                 for (let piece of this.boardSetup[index - 1]) {
-                    if (piece.getType() != PieceTypes.EMPTY)
+                    if (piece.getType() != PieceTypes.EMPTY) {
+                        //Add the found piece in uppercase if it's a white piece, otherwise lowercase
                         newFen += piece.getSide() === Side.WHITE ? piece.getType().toUpperCase() : piece.getType();
-                    //Add the found piece in uppercase if it's a white piece, otherwise lowercase
+                        if (piece.getAbilities().length > 0) {
+                            newFen += "[";
+                            for (let ability of piece.getAbilities()) {
+                                newFen += ability.toString();
+                            }
+                            newFen += "]";
+                        }
+                    }
+
                     else {
                         //If it gets here, an empty square was found
                         if (isNaN(Number(newFen.slice(-1)))) //If the last character represents a piece
@@ -730,12 +774,3 @@ export class Board {
         console.log(board);
     }
 }
-
-//"8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-//"8 8/r[102500501510]n[300]6/w" -> fen notation concept for when abilities get implemented (each ability is a 3 digit number)
-//"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
-
-
-// var board: Board = new Board("8 8/1k4r1/8/8/8/8/7p/7P/7K", true);
-// board.printBoard();
-// console.log(board.sideHasLegalMoves(Side.WHITE));

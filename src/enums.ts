@@ -35,6 +35,7 @@ export enum PieceTypes {
 }
 
 export enum PieceAbilities {
+    NONE = -1,
     //Generic abilities that any piece can have [100-199]
     SHIELD = 100, //can take a hit
 

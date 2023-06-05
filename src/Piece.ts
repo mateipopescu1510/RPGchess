@@ -34,12 +34,7 @@ export class Piece {
         this.currentXP += PER_MOVE_XP;
         this.currentXP += Math.floor(CAPTURE_MULTIPLIER * capturedPieceXP);
 
-        if (LEVEL_UP_XP[this.level] <= this.currentXP) {
-            this.currentXP -= LEVEL_UP_XP[this.level];
-            this.level++;
-            return true;
-        }
-        return false;
+        return LEVEL_UP_XP[this.level] <= this.currentXP;
     }
 
     addAbility(ability: PieceAbilities): Boolean {
@@ -56,6 +51,10 @@ export class Piece {
 
     getDirections(): Direction[] {
         return this.directions;
+    }
+
+    setAbilities(pieceAbilities: PieceAbilities[]) {
+        this.abilities = pieceAbilities;
     }
 
     getAbilities(): PieceAbilities[] {
@@ -144,10 +143,8 @@ export function abilitesForPiece(piece: Piece): PieceAbilities[] {
         return [];
 
     let keys = Object.values(PieceAbilities).filter((v) => !isNaN(Number(v)));
-    let possibleAbilities: PieceAbilities[] = [];
+    let possibleAbilities: PieceAbilities[] = [PieceAbilities.NONE];
     let pieceAbilities = piece.getAbilities();
-    // console.log(pieceAbilities);
-    // console.log(PieceAbilities[pieceAbilities[0]]);
 
     for (let key of keys)
         if (Number(key) >= 100 && Number(key) < 200)
