@@ -3,10 +3,13 @@ import http from 'http';
 import express from 'express';
 import socketIO from 'socket.io';
 import * as uuid  from 'uuid';
+import cookieParser from 'cookie-parser';
 
 import * as mongodb from './mongoDB';
 import * as login from './loginValidation';
 import * as gameSocket from './gameSocket';
+import * as matchmaking from './matchmaking';
+import { gamesInProgress } from "./gameSocket";
 
 
 // Create Express app
@@ -18,31 +21,50 @@ const io = new socketIO.Server(server)
 
 // Set up body-parser middleware to parse request bodies
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
+// set static files folder
 app.use(express.static('resources'));
 
 
 // MongoDB connect
-mongodb.connectToDb();
+mongodb.connectToDb().catch((err) => { console.log(err) });
 
 // create virtual game rooms and handle communications
-gameSocket.handleGames(io);    
-
-app.get('/game', (req, res) => {
-    let newGameId = uuid.v4();
-    res.redirect(`/game/${newGameId}`);
-})
+gameSocket.handleGames(io);  
 
 app.get('/game/:gameId', (req, res) => {
     let gameId = req.params.gameId;
-    let playerPerspective = Math.random() < 0.5 ? "WHITE" : "BLACK";
-    res.render('pages/game', {gameId: gameId, playerPerspective: playerPerspective});
+    let game = gamesInProgress.get(gameId);
+    if(game)
+    {
+        let playerPerspective = req.cookies.userId === game.getWhiteId() ? "WHITE" : "BLACK";
+        res.render('pages/game', {gameId: gameId, playerPerspective: playerPerspective});
+    }
+});
 
+app.get('/joinQueue', (req, res) => {
+    let userId = req.cookies.userId; // Retrieve the user ID from the cookie
+    if (!userId) {
+        userId = uuid.v4(); // Generate a new user ID
+        res.cookie('userId', userId); // Set the user ID in a cookie
+    }
+   matchmaking.joinQueue(userId, res);
+});
+
+app.get('/leaveQueue', (req, res) => {
+    let userId = req.cookies.userId;
+    if (!userId) {
+        userId = uuid.v4(); 
+        res.cookie('userId', userId); 
+        return;
+    }
+    matchmaking.leaveQueue(userId);
 });
 
 app.get('/register', (req, res) => {
     res.render('pages/register');
-})
+});
 
 app.post('/register', (req, res) => {
     const playersCollection = mongodb.getDb().collection('players');

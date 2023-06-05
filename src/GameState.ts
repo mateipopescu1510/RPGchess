@@ -40,6 +40,11 @@ export class GameState {
         return false;
     }
 
+
+    getTurn(): number {
+        return this.currentTurn;
+    }
+
     takeback(): Boolean {
         let undoSuccessful: Boolean = this.board.undoMove();
         if (undoSuccessful) {
@@ -97,25 +102,24 @@ export class GameState {
         //Only for testing
         this.board.printBoard();
     }
+
+    changeTurn() {
+        this.currentTurn = 1 - this.currentTurn;
+    }
 }
 
 // var board: GameState = new GameState("8 8/kr6/8/8/8/8/7p/7P/6BK", 1, -1, -1);
 
-// board.printBoard();
-// console.log("white valid moves:");
-// board.board.printAllValidMoves(Side.WHITE);
-// console.log("stalemate", board.stalemate());
-// console.log("checkmate", board.checkmate());
-// console.log("gameResult", board.getGameResult());
+// console.log(game.takeback());
+// game.printBoard();
 
-// console.log(board.movePiece([0, 1], [7, 1]));
+// console.log(game.movePiece([0, 6], [2, 5]));
+// game.printBoard();
 
-// board.printBoard();
-// console.log("white valid moves:");
-// board.board.printAllValidMoves(Side.WHITE);
-// console.log("stalemate", board.stalemate());
-// console.log("checkmate", board.checkmate());
-// console.log("gameResult", board.getGameResult());
+// console.log(game.takeback());
+// game.printBoard();
 
-// console.log(board.movePiece([7, 6], [6, 5]));
-// board.printBoard();
+// console.log(game.movePiece([0, 6], [2, 5]));
+// game.printBoard();
+
+
