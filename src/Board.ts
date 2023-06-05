@@ -32,8 +32,6 @@ export class Board {
         this.pseudoLegal = pseudoLegal;
     }
 
-    //TODO add selectPiece() method? and highlight its possible moves
-
     movePiece([fromRow, fromColumn]: [number, number], [toRow, toColumn]: [number, number]): Boolean {
         if (this.boardSetup[fromRow][fromColumn].getType() === PieceTypes.EMPTY)
             return false; //Do nothing if an empty square is moved
@@ -112,6 +110,23 @@ export class Board {
         return moves;
     }
 
+    sideHasLegalMoves(side: Side): Boolean {
+        for (let row = 0; row < this.ROWS; row++)
+            for (let column = 0; column < this.COLUMNS; column++)
+                if (this.boardSetup[row][column].getSide() === side
+                    && this.validMoves([row, column]).length > 0)
+                    return true;
+        return false;
+    }
+
+    printAllValidMoves(side: Side) {
+        for (let row = 0; row < this.ROWS; row++)
+            for (let column = 0; column < this.COLUMNS; column++)
+                if (this.boardSetup[row][column].getSide() === side
+                    && this.validMoves([row, column]).length > 0)
+                    console.log([row, column], "->", this.validMoves([row, column]))
+    }
+
     kingInCheck(kingPosition: [number, number], side: Side, from: [number, number] = [-1, -1], to: [number, number] = [-1, -1]): Boolean {
         //Way better than finding every single enemy piece and seeing if the king's square is in its valid moves
         //Second and third arguments are for also seeing if a candidate move puts one's own king in check
@@ -132,8 +147,12 @@ export class Board {
 
     private checkFromLines([row, column]: [number, number], side: Side, [fromRow, fromColumn]: [number, number] = [-1, -1], [toRow, toColumn]: [number, number] = [-1, -1]): Boolean {
         for (let i = 1; row + i < this.ROWS; i++) {
-            if (oppositeSide(side, this.boardSetup[row + i][column].getSide()) && isQueenOrRook(this.boardSetup[row + i][column]))
-                return true;
+            if (oppositeSide(side, this.boardSetup[row + i][column].getSide()) && isQueenOrRook(this.boardSetup[row + i][column])) {
+                if (row + i === toRow && column === toColumn)
+                    break;
+                else
+                    return true;
+            }
             if (row + i === fromRow && column === fromColumn)
                 continue; //The piece moved from this square so it is treated as empty
             if (row + i === toRow && column === toColumn || sameSide(side, this.boardSetup[row + i][column].getSide()))
@@ -141,8 +160,12 @@ export class Board {
         }
 
         for (let i = 1; row - i >= 0; i++) {
-            if (oppositeSide(side, this.boardSetup[row - i][column].getSide()) && isQueenOrRook(this.boardSetup[row - i][column]))
-                return true;
+            if (oppositeSide(side, this.boardSetup[row - i][column].getSide()) && isQueenOrRook(this.boardSetup[row - i][column])) {
+                if (row - i === toRow && column === toColumn)
+                    break;
+                else
+                    return true;
+            }
             if (row - i === fromRow && column === fromColumn)
                 continue;
             if (row - i === toRow && column === toColumn || sameSide(side, this.boardSetup[row - i][column].getSide()))
@@ -150,8 +173,12 @@ export class Board {
         }
 
         for (let i = 1; column + i < this.COLUMNS; i++) {
-            if (oppositeSide(side, this.boardSetup[row][column + i].getSide()) && isQueenOrRook(this.boardSetup[row][column + i]))
-                return true;
+            if (oppositeSide(side, this.boardSetup[row][column + i].getSide()) && isQueenOrRook(this.boardSetup[row][column + i])) {
+                if (row === toRow && column + i === toColumn)
+                    break;
+                else
+                    return true;
+            }
             if (row === fromRow && column + i === fromColumn)
                 continue;
             if (row === toRow && column + i === toColumn || sameSide(side, this.boardSetup[row][column + i].getSide()))
@@ -159,8 +186,12 @@ export class Board {
         }
 
         for (let i = 1; column - i >= 0; i++) {
-            if (oppositeSide(side, this.boardSetup[row][column - i].getSide()) && isQueenOrRook(this.boardSetup[row][column - i]))
-                return true;
+            if (oppositeSide(side, this.boardSetup[row][column - i].getSide()) && isQueenOrRook(this.boardSetup[row][column - i])) {
+                if (row === toRow && column - i === toColumn)
+                    break;
+                else
+                    return true;
+            }
             if (row === fromRow && column - i === fromColumn)
                 continue;
             if (row === toRow && column - i === toColumn || sameSide(side, this.boardSetup[row][column - i].getSide()))
@@ -172,8 +203,12 @@ export class Board {
 
     private checkFromDiagonals([row, column]: [number, number], side: Side, [fromRow, fromColumn]: [number, number] = [-1, -1], [toRow, toColumn]: [number, number] = [-1, -1]): Boolean {
         for (let i = 1; row + i < this.ROWS && column + i < this.COLUMNS; i++) {
-            if (oppositeSide(side, this.boardSetup[row + i][column + i].getSide()) && isQueenOrBishop(this.boardSetup[row + i][column + i]))
-                return true;
+            if (oppositeSide(side, this.boardSetup[row + i][column + i].getSide()) && isQueenOrBishop(this.boardSetup[row + i][column + i])) {
+                if (row + i === toRow && column + i === toColumn)
+                    break;
+                else
+                    return true;
+            }
             if (row + i === fromRow && column + i === fromColumn)
                 continue;
             if (row + i === toRow && column + i === toColumn || sameSide(side, this.boardSetup[row + i][column + i].getSide()))
@@ -181,8 +216,12 @@ export class Board {
         }
 
         for (let i = 1; row - i >= 0 && column - i >= 0; i++) {
-            if (oppositeSide(side, this.boardSetup[row - i][column - i].getSide()) && isQueenOrBishop(this.boardSetup[row - i][column - i]))
-                return true;
+            if (oppositeSide(side, this.boardSetup[row - i][column - i].getSide()) && isQueenOrBishop(this.boardSetup[row - i][column - i])) {
+                if (row - i === toRow && column - i === toColumn)
+                    break;
+                else
+                    return true;
+            }
             if (row - i === fromRow && column - i === fromColumn)
                 continue;
             if (row - i === toRow && column - i === toColumn || sameSide(side, this.boardSetup[row - i][column - i].getSide()))
@@ -190,8 +229,12 @@ export class Board {
         }
 
         for (let i = 1; row + i < this.ROWS && column - i >= 0; i++) {
-            if (oppositeSide(side, this.boardSetup[row + i][column - i].getSide()) && isQueenOrBishop(this.boardSetup[row + i][column - i]))
-                return true;
+            if (oppositeSide(side, this.boardSetup[row + i][column - i].getSide()) && isQueenOrBishop(this.boardSetup[row + i][column - i])) {
+                if (row + i === toRow && column - i === toColumn)
+                    break;
+                else
+                    return true;
+            }
             if (row + i === fromRow && column - i === fromColumn)
                 continue;
             if (row + i === toRow && column - i === toColumn || sameSide(side, this.boardSetup[row + i][column - i].getSide()))
@@ -199,8 +242,12 @@ export class Board {
         }
 
         for (let i = 1; row - i >= 0 && column + i < this.COLUMNS; i++) {
-            if (oppositeSide(side, this.boardSetup[row - i][column + i].getSide()) && isQueenOrBishop(this.boardSetup[row - i][column + i]))
-                return true;
+            if (oppositeSide(side, this.boardSetup[row - i][column + i].getSide()) && isQueenOrBishop(this.boardSetup[row - i][column + i])) {
+                if (row - i === toRow && column + i === toColumn)
+                    break;
+                else
+                    return true;
+            }
             if (row - i === fromRow && column + i === fromColumn)
                 continue;
             if (row - i === toRow && column + i === toColumn || sameSide(side, this.boardSetup[row - i][column + i].getSide()))
@@ -221,35 +268,35 @@ export class Board {
         let columnPlus2 = column + 2 < this.COLUMNS;
         let columnPlus1 = column + 1 < this.COLUMNS;
 
-        if (rowMinus2 && columnMinus1 && oppositePiece(this.boardSetup[row][column], this.boardSetup[row - 2][column - 1]) &&
+        if (rowMinus2 && columnMinus1 && oppositeSide(side, this.boardSetup[row - 2][column - 1].getSide()) &&
             isKnight(this.boardSetup[row - 2][column - 1]) && [toRow, toColumn].toString() != [row - 2, column - 1].toString())
             return true;
 
-        if (rowMinus2 && columnPlus1 && oppositePiece(this.boardSetup[row][column], this.boardSetup[row - 2][column + 1]) &&
+        if (rowMinus2 && columnPlus1 && oppositeSide(side, this.boardSetup[row - 2][column + 1].getSide()) &&
             isKnight(this.boardSetup[row - 2][column + 1]) && [toRow, toColumn].toString() != [row - 2, column + 1].toString())
             return true;
 
-        if (rowMinus1 && columnPlus2 && oppositePiece(this.boardSetup[row][column], this.boardSetup[row - 1][column + 2]) &&
+        if (rowMinus1 && columnPlus2 && oppositeSide(side, this.boardSetup[row - 1][column + 2].getSide()) &&
             isKnight(this.boardSetup[row - 1][column + 2]) && [toRow, toColumn].toString() != [row - 1, column + 2].toString())
             return true;
 
-        if (rowPlus1 && columnPlus2 && oppositePiece(this.boardSetup[row][column], this.boardSetup[row + 1][column + 2]) &&
+        if (rowPlus1 && columnPlus2 && oppositeSide(side, this.boardSetup[row + 1][column + 2].getSide()) &&
             isKnight(this.boardSetup[row + 1][column + 2]) && [toRow, toColumn].toString() != [row + 1, column + 2].toString())
             return true;
 
-        if (rowPlus2 && columnPlus1 && oppositePiece(this.boardSetup[row][column], this.boardSetup[row + 2][column + 1]) &&
+        if (rowPlus2 && columnPlus1 && oppositeSide(side, this.boardSetup[row + 2][column + 1].getSide()) &&
             isKnight(this.boardSetup[row + 2][column + 1]) && [toRow, toColumn].toString() != [row + 2, column + 1].toString())
             return true;
 
-        if (rowPlus2 && columnMinus1 && oppositePiece(this.boardSetup[row][column], this.boardSetup[row + 2][column - 1]) &&
+        if (rowPlus2 && columnMinus1 && oppositeSide(side, this.boardSetup[row + 2][column - 1].getSide()) &&
             isKnight(this.boardSetup[row + 2][column - 1]) && [toRow, toColumn].toString() != [row + 2, column - 1].toString())
             return true;
 
-        if (rowPlus1 && columnMinus2 && oppositePiece(this.boardSetup[row][column], this.boardSetup[row + 1][column - 2]) &&
+        if (rowPlus1 && columnMinus2 && oppositeSide(side, this.boardSetup[row + 1][column - 2].getSide()) &&
             isKnight(this.boardSetup[row + 1][column - 2]) && [toRow, toColumn].toString() != [row + 1, column - 2].toString())
             return true;
 
-        if (rowMinus1 && columnMinus2 && oppositePiece(this.boardSetup[row][column], this.boardSetup[row - 1][column - 2]) &&
+        if (rowMinus1 && columnMinus2 && oppositeSide(side, this.boardSetup[row - 1][column - 2].getSide()) &&
             isKnight(this.boardSetup[row - 1][column - 2]) && [toRow, toColumn].toString() != [row - 1, column - 2].toString())
             return true;
 
@@ -257,23 +304,31 @@ export class Board {
     }
 
     private checkFromPawn([row, column]: [number, number], side: Side, [fromRow, fromColumn]: [number, number] = [-1, -1], [toRow, toColumn]: [number, number] = [-1, -1]): Boolean {
-        if (row > 0 && this.boardSetup[row][column].getSide() === Side.WHITE) {
-            if (column + 1 < this.ROWS && this.boardSetup[row - 1][column + 1].getType() === PieceTypes.PAWN &&
-                this.boardSetup[row - 1][column + 1].getSide() === Side.BLACK && [toRow, toColumn].toString() != [row - 1, column + 1].toString())
+        if (row > 0 && side === Side.WHITE) {
+            if (column + 1 < this.COLUMNS &&
+                this.boardSetup[row - 1][column + 1].getType() === PieceTypes.PAWN &&
+                this.boardSetup[row - 1][column + 1].getSide() === Side.BLACK &&
+                [toRow, toColumn].toString() != [row - 1, column + 1].toString())
                 return true;
 
-            if (column - 1 >= 0 && this.boardSetup[row - 1][column - 1].getType() === PieceTypes.PAWN &&
-                this.boardSetup[row - 1][column - 1].getSide() === Side.BLACK && [toRow, toColumn].toString() != [row - 1, column - 1].toString())
+            if (column - 1 >= 0 &&
+                this.boardSetup[row - 1][column - 1].getType() === PieceTypes.PAWN &&
+                this.boardSetup[row - 1][column - 1].getSide() === Side.BLACK &&
+                [toRow, toColumn].toString() != [row - 1, column - 1].toString())
                 return true;
         }
 
-        if (row < this.ROWS - 1 && this.boardSetup[row][column].getSide() === Side.BLACK) {
-            if (column + 1 < this.ROWS && this.boardSetup[row + 1][column + 1].getType() === PieceTypes.PAWN &&
-                this.boardSetup[row + 1][column + 1].getSide() === Side.WHITE && [toRow, toColumn].toString() != [row + 1, column + 1].toString())
+        if (row < this.ROWS - 1 && side === Side.BLACK) {
+            if (column + 1 < this.COLUMNS &&
+                this.boardSetup[row + 1][column + 1].getType() === PieceTypes.PAWN &&
+                this.boardSetup[row + 1][column + 1].getSide() === Side.WHITE &&
+                [toRow, toColumn].toString() != [row + 1, column + 1].toString())
                 return true;
 
-            if (column - 1 >= 0 && this.boardSetup[row + 1][column - 1].getType() === PieceTypes.PAWN &&
-                this.boardSetup[row + 1][column - 1].getSide() === Side.WHITE && [toRow, toColumn].toString() != [row + 1, column - 1].toString())
+            if (column - 1 >= 0 &&
+                this.boardSetup[row + 1][column - 1].getType() === PieceTypes.PAWN &&
+                this.boardSetup[row + 1][column - 1].getSide() === Side.WHITE &&
+                [toRow, toColumn].toString() != [row + 1, column - 1].toString())
                 return true;
         }
 
@@ -287,7 +342,7 @@ export class Board {
         return false;
     }
 
-    private pseudoLegalMoves([row, column]: [number, number]): Array<[number, number]> {
+    pseudoLegalMoves([row, column]: [number, number]): Array<[number, number]> {
         let moves: Array<[number, number]> = [];
         let directions: Direction[] = this.boardSetup[row][column].getDirections();
         let ranges: number[] = this.boardSetup[row][column].getRange();
@@ -629,6 +684,10 @@ export class Board {
         return this.blackKingPosition;
     }
 
+    pseudoLegalGame(): Boolean {
+        return this.pseudoLegal;
+    }
+
     printBoard() {
         //only for testing
         for (let row of this.boardSetup) {
@@ -661,31 +720,7 @@ export class Board {
 //"8 8/r[102500501510]n[300]6/w" -> fen notation concept for when abilities get implemented (each ability is a 3 digit number)
 //"8 8/n5P1/2p2r2/1P6/5k2/2QB4/1q6/1PP5/8"
 
-// var board: Board = new Board("8 8/rnbqk1nr/pppp1ppp/4q3/1b1P4/5N2/PPP1PPPP/RNBQKB1R/8");
-// var board: Board = new Board("8 8/3rk3/8/8/b7/8/3q3R/3K4/7B", true);
 
-
+// var board: Board = new Board("8 8/1k4r1/8/8/8/8/7p/7P/7K", true);
 // board.printBoard();
-// console.log("Current FEN:", board.getFen());
-// var whiteKing: [number, number] = board.getWhiteKingPosition();
-// console.log("White king position:", whiteKing);
-// console.log("White king in check?:", board.kingInCheck(board.getWhiteKingPosition(), Side.WHITE));
-
-// console.log(board.validMoves(whiteKing));
-// board.printBoard();
-// console.log();
-// console.log(board.movePiece(whiteKing, [5, 3]));
-// board.printBoard();
-
-// var board: Board = new Board("8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-// console.log(board.movePiece([6, 4], [4, 4]));
-// console.log(board.movePiece([1, 4], [3, 4]));
-// board.printBoard();
-// console.log(board.undoMove());
-// board.printBoard();
-
-// console.log(board.undoMove());
-// board.printBoard();
-
-// console.log(board.undoMove());
-// board.printBoard();
+// console.log(board.sideHasLegalMoves(Side.WHITE));
