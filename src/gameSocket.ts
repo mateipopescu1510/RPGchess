@@ -9,6 +9,7 @@ export function handleGames(io) {
 
         socket.join(gameId);        // create virtual room for the game
         let game = gamesInProgress.get(gameId)!;
+        socket.emit("boardState", game.getGameState().getBoard().getFen());  // send board state to the player who joined the game
         
         socket.on("move", (move) => {
             if(game.getGameState().getTurn() != playerColor)
