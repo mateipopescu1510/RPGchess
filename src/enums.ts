@@ -62,7 +62,7 @@ export enum PieceAbilities {
     //King abilities [700-799]
     SKIP = 700, // can skip a turn
     // FRIENDLY_FIRE = 701, // can capture friendly pieces
-    LONG_HANDS = 702, //can move two squares instead of one
+    ON_HORSE = 702, //can also move like a knight
     // CASTLING = 703
 }
 

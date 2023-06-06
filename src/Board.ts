@@ -371,8 +371,10 @@ export class Board {
                     moves.push([row + 2, column]);
             }
 
-            if (ability === PieceAbilities.LONG_HANDS)
-                this.boardSetup[row][column].setRange([2, 1]);
+            if (ability === PieceAbilities.ON_HORSE) {
+                this.boardSetup[row][column].setDirections([Direction.LINE, Direction.DIAGONAL, Direction.L]);
+                this.boardSetup[row][column].setRange([1, 1, 1]);
+            }
 
             if (ability === PieceAbilities.COLOR_COMPLEX) {
                 if (column > 0 && !sameSidePiece(this.boardSetup[row][column - 1], this.boardSetup[row][column]))

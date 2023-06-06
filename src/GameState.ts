@@ -144,18 +144,3 @@ export class GameState {
         this.currentTurn = 1 - this.currentTurn;
     }
 }
-// var board: GameState = new GameState("8 8/6k1/5pp1/2q[601]4p/8/8/5N[301]1P/5PP1/6K1", 0, -1, -1);
-// board.printBoard();
-// console.log();
-// board.getBoard().printValidSquares([2, 2]);
-// console.log(board.movePiece([5, 5], [7, 4]));
-// board.printBoard();
-// console.log();
-// board.getBoard().printValidSquares([2, 2]);
-
-// console.log(board.movePiece([0, 6], [0, 7]));
-
-// console.log(board.movePiece([6, 6], [4, 6]));
-// board.printBoard();
-// console.log();
-// board.getBoard().printValidSquares([2, 2]);
