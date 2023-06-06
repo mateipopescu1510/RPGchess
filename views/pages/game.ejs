@@ -19,8 +19,8 @@
   <body>
     <div id="game-container"></div>
     <style>
-      @font-face {
-    font-family: 'font';
+      @Arial-face {
+    Arial-family: 'Arial';
     src: url('../images/Retro_Gaming.ttf') format('truetype');
 }
     </style>
@@ -172,16 +172,16 @@
       let blackLine = new Phaser.Geom.Line(statsTab.x, selectedPieceImage.y + squareSize / 2 + 10, statsTab.x + statsTab.width, selectedPieceImage.y + squareSize / 2 + 10);
       graphics.strokeLineShape(blackLine);
       
-      let textLevel = this.add.text(statsTab.x + 10, selectedPieceImage.y + squareSize / 2 + 20, 'Level: 1', { fontFamily: 'font', fontSize: 20, color: '#000000' });
-      let textXP = this.add.text(statsTab.x + 10, selectedPieceImage.y + squareSize / 2 + 50, 'XP: 0/' + levelUpXp[0], { fontFamily: 'font', fontSize: 20, color: '#000000' });
-      let textAbilities = this.add.text(statsTab.x + 10, selectedPieceImage.y + squareSize / 2 + 80, 'Abilities: ', { fontFamily: 'font', fontSize: 20, color: '#000000' });
+      let textLevel = this.add.text(statsTab.x + 10, selectedPieceImage.y + squareSize / 2 + 20, 'Level: 1', { fontFamily: 'Arial', fontSize: 20, color: '#000000' });
+      let textXP = this.add.text(statsTab.x + 10, selectedPieceImage.y + squareSize / 2 + 50, 'XP: 0/' + levelUpXp[0], { fontFamily: 'Arial', fontSize: 20, color: '#000000' });
+      let textAbilities = this.add.text(statsTab.x + 10, selectedPieceImage.y + squareSize / 2 + 80, 'Abilities: ', { fontFamily: 'Arial', fontSize: 20, color: '#000000' });
       let textAbility = [];
       for(let i = 0; i < 4; i++)
-        textAbility.push(this.add.text(statsTab.x + 10, selectedPieceImage.y + squareSize / 2 + 110 + i * 30, 'None', { fontFamily: 'font', fontSize: 20, color: '#000000' }));
+        textAbility.push(this.add.text(statsTab.x + 10, selectedPieceImage.y + squareSize / 2 + 110 + i * 30, 'None', { fontFamily: 'Arial', fontSize: 20, color: '#000000' }));
       
       // return to menu button
 
-      let returnText = this.add.text(boardPosition.x - 240, boardPosition.y + squareSize / 2 - 10, 'Return to menu', { fontFamily: 'font', fontSize: 24, color: '#000000' });
+      let returnText = this.add.text(boardPosition.x - 240, boardPosition.y + squareSize / 2 - 10, 'Return to menu', { fontFamily: 'Arial', fontSize: 24, color: '#000000' });
       let returnButton = {x: returnText.x - 10, y: boardPosition.y, width: returnText.width + 20, height: squareSize};
       graphics.fillRoundedRect(returnButton.x, returnButton.y, returnButton.width, returnButton.height, radius);
       graphics.strokeRoundedRect(returnButton.x, returnButton.y, returnButton.width, returnButton.height, radius);
@@ -301,12 +301,12 @@
             if(selectedPiece.currentXP >= levelUpXp[selectedPiece.level])
             {
               let possibleAbilities = selectedPiece.possibleAbilities();
-              let chooseAbilityText = this.add.text(textAbility[3].x, textAbility[3].y + 20, "Choose an ability to learn", {fontFamily: 'font', fontSize: 24, color: '#000000'});
+              let chooseAbilityText = this.add.text(textAbility[3].x, textAbility[3].y + 20, "Choose an ability to learn", {fontFamily: 'Arial', fontSize: 24, color: '#000000'});
               let chooseAbility = [];
               for(let idx in possibleAbilities)
               {
                 let abilityId = possibleAbilities[idx];
-                let abilityButton = this.add.text(textAbility[3].x, textAbility[3].y + 50 + idx * 30, allAbilities[abilityId], {fontFamily: 'font', fontSize: 24, color: '#000000'});
+                let abilityButton = this.add.text(textAbility[3].x, textAbility[3].y + 50 + idx * 30, allAbilities[abilityId], {fontFamily: 'Arial', fontSize: 24, color: '#000000'});
                 abilityButton.setInteractive();
                 chooseAbility.push(abilityButton);
                 abilityButton.on('pointerdown', () => {
@@ -340,7 +340,7 @@
           if(gameState.checkmate())
           {
             let winner = gameState.getTurn() === 0 ? "Black" : "White";
-            let winnerText = this.add.text(returnButton.x, returnButton.y + returnButton.height + 50, winner + " wins!", {fontFamily: 'font', fontSize: 24, color: '#000000'});
+            let winnerText = this.add.text(returnButton.x, returnButton.y + returnButton.height + 50, winner + " wins!", {fontFamily: 'Arial', fontSize: 24, color: '#000000'});
             return;
           }
           
@@ -379,7 +379,7 @@
       if(gameState.checkmate())
       {
         let winner = gameState.getTurn() === 0 ? "Black" : "White";
-        let winnerText = gameScene.scene.scenes[0].add.text(returnButton.x, returnButton.y + returnButton.height + 50, winner + " wins!", {fontFamily: 'font', fontSize: 24, color: '#000000'});
+        let winnerText = gameScene.scene.scenes[0].add.text(returnButton.x, returnButton.y + returnButton.height + 50, winner + " wins!", {fontFamily: 'Arial', fontSize: 24, color: '#000000'});
         winnerText.setOrigin(0.5, 0.5);
       }
     });
