@@ -12,6 +12,9 @@ create variable size chessboard game variant              60
 create game variant with custom beginning setups          40
 create barebone database                                  40
 add authentication                                        35
+
+Not implemented: 
+
 store player details in database                          35
 store finished games in database                          25
 add ingame clock                                          30
