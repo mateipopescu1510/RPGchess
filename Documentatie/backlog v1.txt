@@ -1,27 +1,24 @@
-create barebone server
-create barebone database
-create frontend display for basic chess game
-create client-server connection for onMove update
-implement frontend piece move actions (click, drag, etc.)
-store player details in database
-store finished games in database
-implement basic CRUD operations
-implement basic chess game logic
-add leaderboards
-add authentication
-add friends list
-add player profile description
-add chess engine
-create ELO rating system
-implement challenging friends to games
-add game history
-add piece levelup system (gain xp on various events)
-create variable size chessboard game variant
-create game variant with custom beginning setups created by the player
-create matchmaking system
-add ingame chat
-add board/pieces customisation
-implement logic for levelup abilities
-add ingame clock
-
-
+create barebone server                                    100
+create frontend display for basic chess game              100
+implement frontend piece move actions (click, drag, etc.) 100
+implement basic chess game logic                          100
+implement real time move update                           100
+implement logic for levelup abilities                     90  
+add piece levelup system                                  90
+create matchmaking system                                 80
+create variable size chessboard game variant              60
+create game variant with custom beginning setups          40
+create barebone database                                  40
+add authentication                                        35
+store player details in database                          35
+store finished games in database                          25
+add ingame clock                                          30
+add ingame chat                                           20
+add board/pieces customisation                            20
+create ELO rating system                                  20
+implement challenging friends to games                    20
+add game history                                          20
+add leaderboards                                          15
+add friends list                                          15
+add player profile description                            10
+add chess engine                                          10
