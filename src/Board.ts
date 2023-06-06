@@ -525,7 +525,7 @@ export class Board {
                             if (this.boardSetup[row - 1][column].getType() === PieceTypes.EMPTY)
                                 moves.push([row - 1, column]); //Move one square in front if empty
 
-                            if (row === 6 && this.boardSetup[row - 2][column].getType() === PieceTypes.EMPTY && this.boardSetup[row - 1][column].getType() === PieceTypes.EMPTY)
+                            if (row === this.ROWS - 1 && this.boardSetup[row - 2][column].getType() === PieceTypes.EMPTY && this.boardSetup[row - 1][column].getType() === PieceTypes.EMPTY)
                                 moves.push([row - 2, column]); //Move two squares in front on the starting square
 
                             if (column - 1 >= 0 && oppositePiece(this.boardSetup[row][column], this.boardSetup[row - 1][column - 1]))
