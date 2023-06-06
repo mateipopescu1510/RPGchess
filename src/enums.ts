@@ -37,32 +37,33 @@ export enum PieceTypes {
 export enum PieceAbilities {
     NONE = -1,
     //Generic abilities that any piece can have [100-199]
-    SHIELD = 100, //can take a hit
+    // SHIELD = 100, //can take a hit
 
     //Pawn abilities [200-299]
     SCOUT = 200, // can advance twice in one turn
 
     //Knight abilities [300-399]
-    TIME_TRAVEL = 300, // can attack back one move in time
+    // TIME_TRAVEL = 300, // can attack back one move in time
     SMOLDERING = 301, //freezes enemy queen for a move
 
     //Bishop abilities [400-499]
-    SNIPER = 400, // can attack without moving
-    CONVERT_ENEMY = 401, // can turn an enemy piece into a friendly piece, one time use
-    COLOR_COMPLEX = 402, // can change color complex, one time use
+    // SNIPER = 400, // can attack without moving
+    // CONVERT_ENEMY = 401, // can turn an enemy piece into a friendly piece, one time use
+    COLOR_COMPLEX = 402, // can change color complex by moving one sqaure to the side
 
     //Rook abilities [500-599]
-    TANK = 500, // if two pieces are on the same line next to each other, they can both be captured
+    // TANK = 500, // if two pieces are on the same line next to each other, they can both be captured
     HAS_PAWN = 501, // has a pawn that can guard its front left and right
 
     //Queen abilities [600-699]
-    BECOME_KING = 600, //becomes piece of interest, king doesn't matter anymore
+    // BECOME_KING = 600, //becomes piece of interest, king doesn't matter anymore
+    SHORT_AMAZON = 601, //can also move like a knight but lines and diagonals have reduced range
 
     //King abilities [700-799]
     SKIP = 700, // can skip a turn
-    FRIENDLY_FIRE = 701, // can capture friendly pieces
+    // FRIENDLY_FIRE = 701, // can capture friendly pieces
     LONG_HANDS = 702, //can move two squares instead of one
-    CASTLING = 703
+    // CASTLING = 703
 }
 
 

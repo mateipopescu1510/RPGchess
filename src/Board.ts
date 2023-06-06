@@ -349,6 +349,11 @@ export class Board {
     pseudoLegalMoves([row, column]: [number, number]): Array<[number, number]> {
         let moves: Array<[number, number]> = [];
 
+        if (this.boardSetup[row][column].getType() === PieceTypes.QUEEN &&
+            this.getLastMove()[2] !== null &&
+            this.getLastMove()[2]?.getAbilities().indexOf(PieceAbilities.SMOLDERING) != -1)
+            return moves;
+
         for (let ability of this.boardSetup[row][column].getAbilities()) {
             // Add moves based on special piece abilities
             if (ability === PieceAbilities.SKIP)
@@ -379,6 +384,11 @@ export class Board {
             if (ability === PieceAbilities.HAS_PAWN) {
                 this.boardSetup[row][column].setDirections([Direction.LINE, Direction.PAWN]);
                 this.boardSetup[row][column].setRange([INFINITE_RANGE, 1]);
+            }
+
+            if (ability === PieceAbilities.SHORT_AMAZON) {
+                this.boardSetup[row][column].setDirections([Direction.LINE, Direction.DIAGONAL, Direction.L]);
+                this.boardSetup[row][column].setRange([2, 2, 1]);
             }
         }
 
@@ -809,9 +819,4 @@ export class Board {
         console.log([row, column], "->", this.validMoves([row, column]));
     }
 }
-// var board: Board = new Board("8 8/k[700]7/4r[501]b[402]2/2p[200]N4/8/8/5K[702]2/1P6/8");
-// board.printBoard();
-// console.log();
-// board.printValidSquares([1, 4]);
-// console.log(board.getBoard()[1][4].getDirections());
 
