@@ -21,7 +21,7 @@
     <style>
       @font-face {
     font-family: 'font';
-    src: url('../images/Minecraft.ttf') format('truetype');
+    src: url('../images/Retro_Gaming.ttf') format('truetype');
 }
     </style>
     <script src="/socket.io/socket.io.js"></script>
@@ -36,10 +36,10 @@
     let startingPosition = data.fen
     let currentTurn = data.turn;
     let levelUpXp = data.levelUpXp;
-    console.log(data.game);
     let game = new GameBundle.Game(1, 2, startingPosition);
     let gameState = game.gameState;
     let board = gameState.board;
+    let allAbilities = data.pieceAbilities;
     gameState.currentTurn = currentTurn;
 
     for(let i=0; i<board.ROWS ;i++)   // copy piece stats from server, in case of a reconnection
@@ -51,29 +51,6 @@
       }
 
     let socket = io({query: {gameId: gameId, playerColor: playerColor}});
-    socket.on("move", (move) => {
-      let movedPiece = pieceSprites[move.from[0]][move.from[1]];
-      let capturedPiece = pieceSprites[move.to[0]][move.to[1]];
-      pieceSprites[move.to[0]][move.to[1]] = movedPiece;
-      pieceSprites[move.from[0]][move.from[1]] = undefined;
-
-      if(capturedPiece != undefined)
-        capturedPiece.destroy();
-
-      if(playerPerspective === "WHITE")
-      {
-        movedPiece.x = boardSquareSprites[move.to[0]][move.to[1]].x;
-        movedPiece.y = boardSquareSprites[move.to[0]][move.to[1]].y;
-      }
-      else
-      {
-        movedPiece.x = boardSquareSprites[board.ROWS - move.to[0] - 1][board.COLUMNS - move.to[1] - 1].x;
-        movedPiece.y = boardSquareSprites[board.ROWS - move.to[0] - 1][board.COLUMNS - move.to[1] - 1].y;
-      }
-      movedPiece.row = move.to[0];
-      movedPiece.col = move.to[1];
-      gameState.movePiece(move.from, move.to);
-    });
 
     const config = {
       type: Phaser.AUTO,
@@ -179,7 +156,7 @@
 
       // Set the fill color, border color, and style
       var fillColor = 0x808080; // Gray color
-      var borderColor = 0x000000; // Red color for the border
+      var borderColor = 0x000000; // black color
       var radius = 10; // Radius of the rounded corners
 
       graphics.fillStyle(fillColor);
@@ -202,8 +179,23 @@
       for(let i = 0; i < 4; i++)
         textAbility.push(this.add.text(statsTab.x + 10, selectedPieceImage.y + squareSize / 2 + 110 + i * 30, 'None', { fontFamily: 'font', fontSize: 20, color: '#000000' }));
       
+      // return to menu button
+
+      let returnText = this.add.text(boardPosition.x - 240, boardPosition.y + squareSize / 2 - 10, 'Return to menu', { fontFamily: 'font', fontSize: 24, color: '#000000' });
+      let returnButton = {x: returnText.x - 10, y: boardPosition.y, width: returnText.width + 20, height: squareSize};
+      graphics.fillRoundedRect(returnButton.x, returnButton.y, returnButton.width, returnButton.height, radius);
+      graphics.strokeRoundedRect(returnButton.x, returnButton.y, returnButton.width, returnButton.height, radius);
+      returnText.setInteractive();
       
       this.input.on("pointerdown", (pointer, gameObjects) => {
+        if (gameObjects[0] instanceof Phaser.GameObjects.Text)  // go home button
+          if(gameObjects[0].text === "Return to menu")
+          {
+            window.location.href = "/";
+            return;
+          }
+
+
         this.draggedPiece = gameObjects[0];
         if(this.draggedPiece != undefined && this.draggedPiece.side === playerPerspective)
         {
@@ -214,15 +206,14 @@
         if(this.draggedPiece != undefined)
         {
           let selectedPiece = board.boardSetup[this.draggedPiece.row][this.draggedPiece.col];
-          console.log(board.boardSetup);
-          console.log(selectedPiece);
           textLevel.setText('Level: ' + (selectedPiece.level + 1 ));
           textXP.setText('XP: ' + selectedPiece.currentXP + '/' + levelUpXp[selectedPiece.level]);
-          let pieceAbilities = selectedPiece.abilities.values();
-          for(let i = 0; i < selectedPiece.abilities.size; i++)
-            textAbility[i].setText(pieceAbilities[i]);
-          for(let i=selectedPiece.abilities.size; i < textAbility.length; i++)
+          let pieceAbilities = selectedPiece.abilities;
+          for(let idx in pieceAbilities)
+            textAbility[idx].setText(allAbilities[pieceAbilities[idx]]);
+          for(let i=selectedPiece.abilities.length; i < textAbility.length; i++)
             textAbility[i].setText('None');
+              
 
           let pieceName = ".";
           if(selectedPiece.type === "p") pieceName = "Pawn";
@@ -289,22 +280,50 @@
           this.draggedPiece.col = targetSquareSprite.col;
           let capturedPiece = pieceSprites[targetSquareSprite.row][targetSquareSprite.col];
           if(capturedPiece != undefined)
-            capturedPiece.destroy();
+            if(targetSquareSprite.row != this.startingSquare.row || targetSquareSprite.col != this.startingSquare.col)
+              capturedPiece.destroy();
 
           this.draggedPiece.setDepth(1);
-          pieceSprites[targetSquareSprite.row][targetSquareSprite.col] = this.draggedPiece;
-          pieceSprites[this.startingSquare.row][this.startingSquare.col] = undefined;
+
+          if(targetSquareSprite.row != this.startingSquare.row || targetSquareSprite.col != this.startingSquare.col) // if the piece was moved to a different square (not just clicked and released
+          {
+            pieceSprites[targetSquareSprite.row][targetSquareSprite.col] = this.draggedPiece;
+            pieceSprites[this.startingSquare.row][this.startingSquare.col] = undefined;
+          }
+
 
           socket.emit("move", {from: [this.startingSquare.row, this.startingSquare.col], to: [targetSquareSprite.row, targetSquareSprite.col]});
           
           if(this.draggedPiece != undefined)  // update stats tab
           {
             let selectedPiece = board.boardSetup[this.draggedPiece.row][this.draggedPiece.col];
+
+            if(selectedPiece.currentXP >= levelUpXp[selectedPiece.level])
+            {
+              let possibleAbilities = selectedPiece.possibleAbilities();
+              let chooseAbilityText = this.add.text(textAbility[3].x, textAbility[3].y + 20, "Choose an ability to learn", {fontFamily: 'font', fontSize: 24, color: '#000000'});
+              let chooseAbility = [];
+              for(let idx in possibleAbilities)
+              {
+                let abilityId = possibleAbilities[idx];
+                let abilityButton = this.add.text(textAbility[3].x, textAbility[3].y + 50 + idx * 30, allAbilities[abilityId], {fontFamily: 'font', fontSize: 24, color: '#000000'});
+                abilityButton.setInteractive();
+                chooseAbility.push(abilityButton);
+                abilityButton.on('pointerdown', () => {
+                  socket.emit("levelup", allAbilities[abilityId]);
+                  chooseAbilityText.destroy();
+                  for(let button of chooseAbility)
+                    button.destroy();
+                  gameState.levelUp(allAbilities[abilityId]);
+                });
+              }
+            }
+
             textLevel.setText('Level: ' + (selectedPiece.level + 1 ));
             textXP.setText('XP: ' + selectedPiece.currentXP + '/' + levelUpXp[selectedPiece.level]);
-            let pieceAbilities = selectedPiece.abilities.values();
-            for(let i = 0; i < selectedPiece.abilities.size; i++)
-              textAbility[i].setText(pieceAbilities[i]);
+            let pieceAbilities = selectedPiece.abilities;
+            for(let idx in pieceAbilities)
+              textAbility[idx].setText(allAbilities[pieceAbilities[idx]]);
             for(let i=selectedPiece.abilities.size; i < textAbility.length; i++)
               textAbility[i].setText('None');
 
@@ -317,13 +336,57 @@
             else if(selectedPiece.type === "k") pieceName = "King"; 
             selectedPieceImage.setTexture(selectedPiece.side.toLowerCase() + pieceName);
           }
-          
+
+          if(gameState.checkmate())
+          {
+            let winner = gameState.getTurn() === 0 ? "Black" : "White";
+            let winnerText = this.add.text(returnButton.x, returnButton.y + returnButton.height + 50, winner + " wins!", {fontFamily: 'font', fontSize: 24, color: '#000000'});
+            return;
+          }
           
           this.draggedPiece = undefined;
           this.startingSquare = undefined;
 
         }
       }, this);
+
+      socket.on("move", (move) => {
+      let movedPiece = pieceSprites[move.from[0]][move.from[1]];
+      let capturedPiece = pieceSprites[move.to[0]][move.to[1]];
+      if(move.to[0] != move.from[0] || move.to[1] != move.from[1])
+      {
+        pieceSprites[move.to[0]][move.to[1]] = movedPiece;
+        pieceSprites[move.from[0]][move.from[1]] = undefined;
+      }
+
+      if(capturedPiece != undefined)
+        if(move.to[0] != move.from[0] || move.to[1] != move.from[1])
+          capturedPiece.destroy();
+
+      if(playerPerspective === "WHITE")
+      {
+        movedPiece.x = boardSquareSprites[move.to[0]][move.to[1]].x;
+        movedPiece.y = boardSquareSprites[move.to[0]][move.to[1]].y;
+      }
+      else
+      {
+        movedPiece.x = boardSquareSprites[board.ROWS - move.to[0] - 1][board.COLUMNS - move.to[1] - 1].x;
+        movedPiece.y = boardSquareSprites[board.ROWS - move.to[0] - 1][board.COLUMNS - move.to[1] - 1].y;
+      }
+      movedPiece.row = move.to[0];
+      movedPiece.col = move.to[1];
+      gameState.movePiece(move.from, move.to);
+      if(gameState.checkmate())
+      {
+        let winner = gameState.getTurn() === 0 ? "Black" : "White";
+        let winnerText = gameScene.scene.scenes[0].add.text(returnButton.x, returnButton.y + returnButton.height + 50, winner + " wins!", {fontFamily: 'font', fontSize: 24, color: '#000000'});
+        winnerText.setOrigin(0.5, 0.5);
+      }
+    });
+
+      socket.on("levelup", (ability) => {
+        gameState.levelUp(ability);
+      });
     }
 
     function update() {
