@@ -29,7 +29,7 @@ export function joinQueue(userId: string, gamemode: string, res: Response): void
         release();
         console.log("Removed players from queue");
 
-        let newGameId = createGame(userId, opponentId);
+        let newGameId = createGame(userId, opponentId, gamemode);
         opponentRes.redirect(`/game/${newGameId}`);
         res.redirect(`/game/${newGameId}`);
         console.log("Redirected players to game");
@@ -55,11 +55,15 @@ export function leaveQueue(userId: string, gamemode: string): void {
     });
 }
 
-function createGame(userId: string, opponentId: string) : string {
+function createGame(userId: string, opponentId: string, gamemode: string) : string {
     const newGameId = uuid.v4();
     let whiteId = Math.random() < 0.5 ? userId : opponentId;
     let blackId = whiteId == userId ? opponentId : userId;
-    gamesInProgress.set(newGameId, new Game(whiteId, blackId, "8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"));
+
+    if(gamemode == "classicchess" || gamemode == "classicrpg")
+      gamesInProgress.set(newGameId, new Game(whiteId, blackId, "8 8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"));
+    else if(gamemode == "insanityrpg")
+      gamesInProgress.set(newGameId, new Game(whiteId, blackId, "15 15/rnbqbnrkrnbqbnr/ppppppppppppppp/15/15/15/15/15/15/15/15/15/15/15/PPPPPPPPPPPPPPP/RNBQBNRKRNBQBNR"));
 
     return newGameId
 }
