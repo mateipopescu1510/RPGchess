@@ -41,19 +41,24 @@ export enum PieceAbilities {
 
     //Pawn abilities [200-299]
     SCOUT = 200, // can advance twice in one turn
+    //ELITE = 201, // can also move like a knight
+    //LONG_SWORD = 202, // can capture diagonally 2 squares
+    //set so it alternates between movesets?
 
     //Knight abilities [300-399]
     // TIME_TRAVEL = 300, // can attack back one move in time
     SMOLDERING = 301, //freezes enemy queen for a move
 
     //Bishop abilities [400-499]
-    // SNIPER = 400, // can attack without moving
+    // SNIPER = 400, // can attack diagonally without moving, but can only move one square diagonally
     // CONVERT_ENEMY = 401, // can turn an enemy piece into a friendly piece, one time use
     COLOR_COMPLEX = 402, // can change color complex by moving one sqaure to the side
 
     //Rook abilities [500-599]
     // TANK = 500, // if two pieces are on the same line next to each other, they can both be captured
     HAS_PAWN = 501, // has a pawn that can guard its front left and right
+    // RADAR = 502, // can see through enemy pieces
+    // RAY_GUN = 503, // can attack and capture entire line (not through friendly pieces), but self-destructs after
 
     //Queen abilities [600-699]
     // BECOME_KING = 600, //becomes piece of interest, king doesn't matter anymore
