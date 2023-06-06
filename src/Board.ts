@@ -56,14 +56,12 @@ export class Board {
 
         let capturedPieceXP: number = this.boardSetup[toRow][toColumn].getTotalXP();
         this.boardSetup[toRow][toColumn] = this.boardSetup[fromRow][fromColumn]; //Move the piece to the new square
-
-        if (!this.checkPawnPromotion([toRow, toColumn])) {
-            this.boardSetup[toRow][toColumn].incrementMoveCounter();
-
-            if (this.mustLevelUp === true)
-                this.mustLevelUp = [toRow, toColumn];
-        }
         this.mustLevelUp = this.boardSetup[toRow][toColumn].addXP(capturedPieceXP);
+        if (this.mustLevelUp === true)
+            this.mustLevelUp = [toRow, toColumn];
+
+        if (this.checkPawnPromotion([toRow, toColumn]))
+            this.mustLevelUp = false;
 
         this.boardSetup[fromRow][fromColumn] = new Piece(); //Create a new empty square where the piece was previously
 
