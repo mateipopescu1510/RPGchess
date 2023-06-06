@@ -63,7 +63,8 @@ export class Board {
         if (this.checkPawnPromotion([toRow, toColumn]))
             this.mustLevelUp = false;
 
-        this.boardSetup[fromRow][fromColumn] = new Piece(); //Create a new empty square where the piece was previously
+        if (fromRow != toRow && fromColumn != toColumn)
+            this.boardSetup[fromRow][fromColumn] = new Piece(); //Create a new empty square where the piece was previously
 
         if (this.boardSetup[toRow][toColumn].getType() === PieceTypes.KING)
             this.boardSetup[toRow][toColumn].getSide() === Side.WHITE ? this.whiteKingPosition = [toRow, toColumn] : this.blackKingPosition = [toRow, toColumn];
