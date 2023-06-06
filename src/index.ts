@@ -10,7 +10,7 @@ import * as login from './loginValidation';
 import * as gameSocket from './gameSocket';
 import * as matchmaking from './matchmaking';
 import { gamesInProgress } from "./gameSocket";
-import { LEVEL_UP_XP } from './enums';
+import { LEVEL_UP_XP, PieceAbilities } from './enums';
 
 const app = express();
 const server = http.createServer(app);
@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
 app.get('/boardstate', (req, res) => {
     let gameId = req.query.gameId as string;
     let game = gamesInProgress.get(gameId)!;
-    let data = {fen: game.getGameState().getBoard().getFen(), turn: game.getGameState().getTurn(), levelUpXp: LEVEL_UP_XP, game: game};
+    let data = {fen: game.getGameState().getBoard().getFen(), turn: game.getGameState().getTurn(), levelUpXp: LEVEL_UP_XP, game: game, pieceAbilities: PieceAbilities};
     if(game)
         res.send(data);
     else

@@ -22,5 +22,10 @@ export function handleGames(io) {
                 socket.emit("invalidMove", move);        // send invalid move message to the player who made the move
         })
 
+        socket.on("levelup", (abilityName) => {
+            game.getGameState().levelUp(abilityName);
+            socket.broadcast.to(gameId).emit("levelup", abilityName);
+        })
+
     })
 }
