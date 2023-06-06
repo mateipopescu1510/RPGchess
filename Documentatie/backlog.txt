@@ -1,0 +1,29 @@
+          Name                                          Priority
+
+create barebone server                                    100
+create frontend display for basic chess game              100
+implement frontend piece move actions (click, drag, etc.) 100
+implement basic chess game logic                          100
+implement real time move update                           100
+implement logic for levelup abilities                     90  
+add piece levelup system                                  90
+create matchmaking system                                 80
+create variable size chessboard game variant              60
+create game variant with custom beginning setups          40
+create barebone database                                  40
+add authentication                                        35
+
+Not implemented: 
+
+store player details in database                          35
+store finished games in database                          25
+add ingame clock                                          30
+add ingame chat                                           20
+add board/pieces customisation                            20
+create ELO rating system                                  20
+implement challenging friends to games                    20
+add game history                                          20
+add leaderboards                                          15
+add friends list                                          15
+add player profile description                            10
+add chess engine                                          10
