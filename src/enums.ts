@@ -2,7 +2,7 @@ export const INFINITE_RANGE: number = -1;
 export const INFINITE_TIME: number = -1;
 export const LEVEL_UP_XP: number[] = [10, 12, 15, 19, 22, 26, 30, 35, 42, 50];
 export const CAPTURE_MULTIPLIER: number = 0.3;
-export const PER_MOVE_XP: number = 1;
+export const PER_MOVE_XP: number = 5;
 
 export enum GameResult {
     BLACK_WIN = -1,
