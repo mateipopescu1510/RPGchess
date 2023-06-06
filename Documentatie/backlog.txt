@@ -1,3 +1,5 @@
+          Name                                          Priority
+
 create barebone server                                    100
 create frontend display for basic chess game              100
 implement frontend piece move actions (click, drag, etc.) 100
