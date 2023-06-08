@@ -177,6 +177,21 @@ export class Piece {
         return possibleAbilities;
     }
 
+    hasLineAttack(): Boolean {
+        return this.directions.indexOf(Direction.LINE) != -1;
+    }
+
+    hasDiagonalAttack(): Boolean {
+        return this.directions.indexOf(Direction.DIAGONAL) != -1;
+    }
+
+    hasKnightAttack(): Boolean {
+        return this.directions.indexOf(Direction.L) != -1;
+    }
+
+    hasPawnAttack(): Boolean {
+        return this.directions.indexOf(Direction.PAWN) != -1;
+    }
 }
 
 
@@ -211,6 +226,10 @@ export function isQueenOrBishop(piece: Piece): Boolean {
 
 export function isKnight(piece: Piece): Boolean {
     return piece.getType() === PieceTypes.KNIGHT;
+}
+
+export function hasLineAttack(piece: Piece): Boolean {
+    return piece.getDirections().indexOf(Direction.LINE) != -1;
 }
 
 export function isPawn(piece: Piece): Boolean {
