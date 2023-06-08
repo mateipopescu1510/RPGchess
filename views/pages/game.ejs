@@ -32,7 +32,7 @@
     let playerPerspective = '<%= playerPerspective %>';   // "WHITE" or "BLACK"
     let gameId = '<%= gameId %>';
     let playerColor = playerPerspective === "WHITE" ? 0 : 1;
-    let data = await fetch("http://localhost:3000/boardState?gameId=" + gameId).then(response => response.json());
+    let data = await fetch("/boardState?gameId=" + gameId).then(response => response.json());
     let startingPosition = data.fen
     let currentTurn = data.turn;
     let levelUpXp = data.levelUpXp;

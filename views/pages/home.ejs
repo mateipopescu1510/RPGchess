@@ -117,7 +117,7 @@
         classicRPGBtn.style.backgroundColor = defaultBtnColor; 
         classicChessBtn.disabled = false;
         insanityRPGBtn.disabled = false;
-        fetch('http://localhost:3000/leaveQueue?mode=classicrpg').then(response => console.log(response));
+        fetch('/leaveQueue?mode=classicrpg').then(response => console.log(response));
       }
       else
       {
@@ -126,7 +126,7 @@
         classicRPGBtn.style.backgroundColor = "red";
         classicChessBtn.disabled = true;
         insanityRPGBtn.disabled = true;
-        fetch('http://localhost:3000/joinQueue?mode=classicrpg').then(response => window.location.href = response.url);
+        fetch('/joinQueue?mode=classicrpg').then(response => window.location.href = response.url);
       }
     }
     function joinClassicChess()
@@ -138,7 +138,7 @@
         classicChessBtn.style.backgroundColor = defaultBtnColor;
         classicRPGBtn.disabled = false;
         insanityRPGBtn.disabled = false;
-        fetch('http://localhost:3000/leaveQueue?mode=classicchess');
+        fetch('/leaveQueue?mode=classicchess');
       }
       else
       {
@@ -146,7 +146,7 @@
         classicChessBtn.style.backgroundColor = "red";
         classicRPGBtn.disabled = true;
         insanityRPGBtn.disabled = true;
-        fetch('http://localhost:3000/joinQueue?mode=classicchess').then(response => window.location.href = response.url);
+        fetch('/joinQueue?mode=classicchess').then(response => window.location.href = response.url);
       }
     }
     function joinInsanityRPG()
@@ -157,7 +157,7 @@
         insanityRPGBtn.style.backgroundColor = defaultBtnColor;
         classicChessBtn.disabled = false;
         classicRPGBtn.disabled = false;
-        fetch('http://localhost:3000/leaveQueue?mode=insanityrpg');
+        fetch('/leaveQueue?mode=insanityrpg');
       }
       else
       {
@@ -165,7 +165,7 @@
         insanityRPGBtn.style.backgroundColor = "red";
         classicChessBtn.disabled = true;
         classicRPGBtn.disabled = true;
-        fetch('http://localhost:3000/joinQueue?mode=insanityrpg').then(response => window.location.href = response.url);
+        fetch('/joinQueue?mode=insanityrpg').then(response => window.location.href = response.url);
       }
     }
     </script>

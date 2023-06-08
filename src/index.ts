@@ -103,7 +103,7 @@ app.post('/login', async (req, res) => {
       res.send("Invalid account.");
   });
 
-
-server.listen(3000, () => {
-    console.log('Server started on http://localhost:3000');
+let port = 3000;
+server.listen(port, '0.0.0.0', () => {
+    console.log('Server started on port ' + port + '...');
 });
