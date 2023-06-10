@@ -177,6 +177,15 @@ export class Piece {
         return possibleAbilities;
     }
 
+    attackRange(direction: Direction) {
+        // Returns the range of the specified direction. If a piece doesn't have that direction of attack, -1 is returned
+        let index: number = this.directions.indexOf(direction);
+        if (index === -1)
+            return -1;
+
+        return this.range[index];
+    }
+
     hasLineAttack(): Boolean {
         return this.directions.indexOf(Direction.LINE) != -1;
     }

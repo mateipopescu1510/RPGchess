@@ -1,4 +1,4 @@
-export const INFINITE_RANGE: number = -1;
+export const INFINITE_RANGE: number = 255;
 export const INFINITE_TIME: number = -1;
 export const LEVEL_UP_XP: number[] = [10, 12, 15, 17, 19, 20, 22, 24, 25, 27, 29, 30, 32, 35];
 export const CAPTURE_MULTIPLIER: number = 0.5;
