@@ -489,7 +489,7 @@ export class Board {
 
             if (ability === PieceAbilities.SHORT_AMAZON) {
                 this.boardSetup[row][column].setDirections([Direction.LINE, Direction.DIAGONAL, Direction.L]);
-                this.boardSetup[row][column].setRange([3, 3, 1]);
+                this.boardSetup[row][column].setRange([2, 2, 1]);
             }
         }
 
