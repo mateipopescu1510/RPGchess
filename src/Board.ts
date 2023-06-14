@@ -147,6 +147,9 @@ export class Board {
         if (this.checkFromPawn(kingPosition, side, from, to))
             return true;
 
+        if (this.checkFromCamel(kingPosition, side, from, to))
+            return true;
+
         return false;
     }
 
@@ -406,6 +409,52 @@ export class Board {
         return false;
     }
 
+    private checkFromCamel([row, column]: [number, number], side: Side, [fromRow, fromColumn]: [number, number] = [-1, -1], [toRow, toColumn]: [number, number] = [-1, -1]): Boolean {
+        let rowMinus3 = row - 3 >= 0;
+        let rowMinus1 = row - 1 >= 0;
+        let rowPlus3 = row + 3 < this.ROWS;
+        let rowPlus1 = row + 1 < this.ROWS;
+
+        let columnMinus3 = column - 3 >= 0;
+        let columnMinus1 = column - 1 >= 0;
+        let columnPlus3 = column + 3 < this.COLUMNS;
+        let columnPlus1 = column + 1 < this.COLUMNS;
+
+        if (rowMinus3 && columnMinus1 && oppositeSide(side, this.boardSetup[row - 3][column - 1].getSide()) &&
+            this.boardSetup[row - 3][column - 1].hasCamelAttack() && [toRow, toColumn].toString() != [row - 3, column - 1].toString())
+            return true;
+
+        if (rowMinus3 && columnPlus1 && oppositeSide(side, this.boardSetup[row - 3][column + 1].getSide()) &&
+            this.boardSetup[row - 3][column + 1].hasCamelAttack() && [toRow, toColumn].toString() != [row - 3, column + 1].toString())
+            return true;
+
+        if (rowMinus1 && columnPlus3 && oppositeSide(side, this.boardSetup[row - 1][column + 3].getSide()) &&
+            this.boardSetup[row - 1][column + 3].hasCamelAttack() && [toRow, toColumn].toString() != [row - 1, column + 3].toString())
+            return true;
+
+        if (rowPlus1 && columnPlus3 && oppositeSide(side, this.boardSetup[row + 1][column + 3].getSide()) &&
+            this.boardSetup[row + 1][column + 3].hasCamelAttack() && [toRow, toColumn].toString() != [row + 1, column + 3].toString())
+            return true;
+
+        if (rowPlus3 && columnPlus1 && oppositeSide(side, this.boardSetup[row + 3][column + 1].getSide()) &&
+            this.boardSetup[row + 3][column + 1].hasCamelAttack() && [toRow, toColumn].toString() != [row + 3, column + 1].toString())
+            return true;
+
+        if (rowPlus3 && columnMinus1 && oppositeSide(side, this.boardSetup[row + 3][column - 1].getSide()) &&
+            this.boardSetup[row + 3][column - 1].hasCamelAttack() && [toRow, toColumn].toString() != [row + 3, column - 1].toString())
+            return true;
+
+        if (rowPlus1 && columnMinus3 && oppositeSide(side, this.boardSetup[row + 1][column - 3].getSide()) &&
+            this.boardSetup[row + 1][column - 3].hasCamelAttack() && [toRow, toColumn].toString() != [row + 1, column - 3].toString())
+            return true;
+
+        if (rowMinus1 && columnMinus3 && oppositeSide(side, this.boardSetup[row - 1][column - 3].getSide()) &&
+            this.boardSetup[row - 1][column - 3].hasCamelAttack() && [toRow, toColumn].toString() != [row - 1, column - 3].toString())
+            return true;
+
+        return false;
+    }
+
     private checkFromPawn([row, column]: [number, number], side: Side, [fromRow, fromColumn]: [number, number] = [-1, -1], [toRow, toColumn]: [number, number] = [-1, -1]): Boolean {
         if (row > 0 && side === Side.WHITE) {
             if (column + 1 < this.COLUMNS &&
@@ -455,8 +504,10 @@ export class Board {
 
         for (let ability of this.boardSetup[row][column].getAbilities()) {
             // Add moves based on special piece abilities
-            if (ability === PieceAbilities.SKIP)
+            if (ability === PieceAbilities.SKIP) {
                 moves.push([row, column]);
+                continue;
+            }
 
             if (ability === PieceAbilities.SCOUT) {
                 let side = this.boardSetup[row][column].getSide();
@@ -468,6 +519,22 @@ export class Board {
                     this.boardSetup[row + 1][column].getType() === PieceTypes.EMPTY &&
                     this.boardSetup[row + 2][column].getType() === PieceTypes.EMPTY)
                     moves.push([row + 2, column]);
+                continue;
+            }
+
+            if (ability === PieceAbilities.QUANTUM_TUNNELING) {
+                let side = this.boardSetup[row][column].getSide();
+                if (side === Side.WHITE && row > 1 &&
+                    this.boardSetup[row - 1][column].getType() === PieceTypes.PAWN &&
+                    this.boardSetup[row - 1][column].getSide() === Side.BLACK &&
+                    this.boardSetup[row - 2][column].getType() === PieceTypes.EMPTY)
+                    moves.push([row - 2, column]);
+                if (side === Side.BLACK && row < this.ROWS - 2 &&
+                    this.boardSetup[row + 1][column].getType() === PieceTypes.PAWN &&
+                    this.boardSetup[row - 1][column].getSide() === Side.WHITE &&
+                    this.boardSetup[row + 2][column].getType() === PieceTypes.EMPTY)
+                    moves.push([row + 2, column]);
+                continue;
             }
 
             if (ability === PieceAbilities.ON_HORSE) {
@@ -487,9 +554,24 @@ export class Board {
                 this.boardSetup[row][column].setRange([INFINITE_RANGE, 1]);
             }
 
-            if (ability === PieceAbilities.SHORT_AMAZON) {
+            if (ability === PieceAbilities.SWEEPER) {
                 this.boardSetup[row][column].setDirections([Direction.LINE, Direction.DIAGONAL, Direction.L]);
                 this.boardSetup[row][column].setRange([2, 2, 1]);
+            }
+
+            if (ability === PieceAbilities.CHANCELLOR) {
+                this.boardSetup[row][column].setDirections([Direction.LINE, Direction.L]);
+                this.boardSetup[row][column].setRange([INFINITE_RANGE, 1]);
+            }
+
+            if (ability === PieceAbilities.ARCHBISHOP) {
+                this.boardSetup[row][column].setDirections([Direction.DIAGONAL, Direction.L]);
+                this.boardSetup[row][column].setRange([INFINITE_RANGE, 1]);
+            }
+
+            if (ability === PieceAbilities.CAMEL) {
+                this.boardSetup[row][column].setDirections([Direction.L, Direction.CAMEL]);
+                this.boardSetup[row][column].setRange([1, 1]);
             }
         }
 
@@ -689,6 +771,56 @@ export class Board {
 
                     if (rowMinus1 && columnMinus2 && !sameSidePiece(this.boardSetup[row][column], this.boardSetup[row - 1][column - 2]))
                         moves.push([row - 1, column - 2]);
+
+                    break;
+                }
+
+                case Direction.CAMEL: {
+                    /*
+                    ..x.x..
+                    .......
+                    x.....x
+                    ...C...
+                    x.....x
+                    .......
+                    ..x.x..
+                    */
+
+                    //A lot of booleans to make the if's a little easier 
+                    let rowMinus3 = row - 3 >= 0;
+                    let rowMinus1 = row - 1 >= 0;
+                    let rowPlus3 = row + 3 < this.ROWS;
+                    let rowPlus1 = row + 1 < this.ROWS;
+
+                    let columnMinus3 = column - 3 >= 0;
+                    let columnMinus1 = column - 1 >= 0;
+                    let columnPlus3 = column + 3 < this.COLUMNS;
+                    let columnPlus1 = column + 1 < this.COLUMNS;
+
+                    //For every L direction, check if the target square is within bounds and if the target square isn't a friendly piece
+                    if (rowMinus3 && columnMinus1 && !sameSidePiece(this.boardSetup[row][column], this.boardSetup[row - 3][column - 1]))
+                        moves.push([row - 3, column - 1]);
+
+                    if (rowMinus3 && columnPlus1 && !sameSidePiece(this.boardSetup[row][column], this.boardSetup[row - 3][column + 1]))
+                        moves.push([row - 3, column + 1]);
+
+                    if (rowMinus1 && columnPlus3 && !sameSidePiece(this.boardSetup[row][column], this.boardSetup[row - 1][column + 3]))
+                        moves.push([row - 1, column + 3]);
+
+                    if (rowPlus1 && columnPlus3 && !sameSidePiece(this.boardSetup[row][column], this.boardSetup[row + 1][column + 3]))
+                        moves.push([row + 1, column + 3]);
+
+                    if (rowPlus3 && columnPlus1 && !sameSidePiece(this.boardSetup[row][column], this.boardSetup[row + 3][column + 1]))
+                        moves.push([row + 3, column + 1]);
+
+                    if (rowPlus3 && columnMinus1 && !sameSidePiece(this.boardSetup[row][column], this.boardSetup[row + 3][column - 1]))
+                        moves.push([row + 3, column - 1]);
+
+                    if (rowPlus1 && columnMinus3 && !sameSidePiece(this.boardSetup[row][column], this.boardSetup[row + 1][column - 3]))
+                        moves.push([row + 1, column - 3]);
+
+                    if (rowMinus1 && columnMinus3 && !sameSidePiece(this.boardSetup[row][column], this.boardSetup[row - 1][column - 3]))
+                        moves.push([row - 1, column - 3]);
 
                     break;
                 }

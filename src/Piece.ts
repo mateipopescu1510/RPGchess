@@ -198,6 +198,10 @@ export class Piece {
         return this.directions.indexOf(Direction.L) != -1;
     }
 
+    hasCamelAttack(): Boolean {
+        return this.directions.indexOf(Direction.CAMEL) != -1;
+    }
+
     hasPawnAttack(): Boolean {
         return this.directions.indexOf(Direction.PAWN) != -1;
     }
