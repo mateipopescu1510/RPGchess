@@ -11,15 +11,15 @@
 #### [Utilizare pull requests](https://github.com/mateipopescu1510/RPGchess/pulls?q=is%3Apr+is%3Aclosed)
 #### Code standards:
 ###### constante pastrate intr-un fisier separat 
-![image](https://github.com/mateipopescu1510/RPGchess/assets/94795061/674ed1b6-ee2b-4f55-871d-879fd5ab6b90)
+![image](https://github.com/mateipopescu1510/RPGchess/assets/94795061/c7056d5d-01db-42c8-aa04-b3620a2e0e9e)
 ###### naming scheme consistent: 
-![image](https://github.com/mateipopescu1510/RPGchess/assets/94795061/49e6c468-fd0e-4408-8ff5-db87eebb143e)
+![image](https://github.com/mateipopescu1510/RPGchess/assets/94795061/d1ed5243-e2d4-4612-bf3d-9023e7889e63)
 #### Comentarii cod:
-![image](https://github.com/mateipopescu1510/RPGchess/assets/94795061/889c9807-74b3-4b4d-a3eb-942078b385e2)
+![image](https://github.com/mateipopescu1510/RPGchess/assets/94795061/28877c59-d469-4e0a-bd42-d796e91f067b)
 #### Design patterns: Singleton pentru instanta care acceseaza baza de date
-![image](https://github.com/mateipopescu1510/RPGchess/assets/94795061/a1cf8fe6-066e-4ec3-9444-6a7c67bcb0e9)
+![image](https://github.com/mateipopescu1510/RPGchess/assets/94795061/6c085130-7ca1-4af4-9ad7-f8e94c7ef1b1)
 #### Folosirea de tool-uri AI:
 ###### Github Copilot in VSCode
 ###### ChatGPT 
-![image](https://github.com/mateipopescu1510/RPGchess/assets/94795061/57c1c7d9-f0cf-43cd-b6f5-5dd2e2b15700)
+![image](https://github.com/mateipopescu1510/RPGchess/assets/94795061/b038e257-26c4-4d8c-b5d1-9962e77d125d)
 
