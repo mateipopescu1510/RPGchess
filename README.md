@@ -1,14 +1,14 @@
 # RPGchess
-#### Prezentare PowerPoint: https://github.com/mateipopescu1510/RPGchess/blob/main/Prezentare%20RPGchess.pptx
-#### Prezentare video: TBA
+#### [Prezentare PowerPoint](https://github.com/mateipopescu1510/RPGchess/blob/main/Prezentare%20RPGchess.pptx)
+#### [Prezentare video](https://www.youtube.com/watch?v=B-hmPq3dsg0)
 ### Detalii de implementare: 
-#### User stories: https://github.com/mateipopescu1510/RPGchess/blob/main/Documentatie/userStories.txt
-#### Backlog: https://github.com/mateipopescu1510/RPGchess/blob/main/Documentatie/backlog.txt
+#### [User stories](https://github.com/mateipopescu1510/RPGchess/blob/main/Documentatie/userStories.txt)
+#### [Backlog](https://github.com/mateipopescu1510/RPGchess/blob/main/Documentatie/backlog.txt)
 #### Diagrame:
-###### Class diagram: https://github.com/mateipopescu1510/RPGchess/blob/main/Documentatie/Class%20Diagram%20(Backend).png
-###### Flowchart diagram: https://github.com/mateipopescu1510/RPGchess/blob/main/Documentatie/State%20Diagram.png
-#### Source control: github, https://github.com/mateipopescu1510/RPGchess/commits/main
-#### Utilizare pull requests: https://github.com/mateipopescu1510/RPGchess/pulls?q=is%3Apr+is%3Aclosed
+###### [Class diagram](https://github.com/mateipopescu1510/RPGchess/blob/main/Documentatie/Class%20Diagram%20(Backend).png)
+###### [Flowchart diagram](https://github.com/mateipopescu1510/RPGchess/blob/main/Documentatie/State%20Diagram.png)
+#### [Source control: github](https://github.com/mateipopescu1510/RPGchess/commits/main)
+#### [Utilizare pull requests](https://github.com/mateipopescu1510/RPGchess/pulls?q=is%3Apr+is%3Aclosed)
 #### Code standards:
 ###### constante pastrate intr-un fisier separat 
 ![image](https://github.com/mateipopescu1510/RPGchess/assets/94795061/674ed1b6-ee2b-4f55-871d-879fd5ab6b90)
