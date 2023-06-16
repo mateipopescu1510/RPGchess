@@ -1,6 +1,6 @@
 export const INFINITE_RANGE: number = 255;
 export const INFINITE_TIME: number = -1;
-export const LEVEL_UP_XP: number[] = [10, 12, 15, 17, 19, 20, 22, 24, 25, 27, 29, 30, 32, 35];
+export const LEVEL_UP_XP: number[] = [10, 12, 15, 17, 19, 20, 22, 24, 25, 27, 29, 30, 32, 35, 40, 45, 50, 55, 60, 66, 72, 80];
 export const CAPTURE_MULTIPLIER: number = 0.5;
 export const PER_MOVE_XP: number = 5;
 
@@ -41,8 +41,10 @@ export enum PieceAbilities {
     // Make variant where you choose 2 or 3 abilities at the beginning of the game
     // Add abilities that influence the clock
 
-    //! Make it so pieces start with 2 ability slots, which can increase with the INCREASE_CAPACITY ability
-    //! Move XP multiplier and capture multiplier inside Piece class and make it variable
+    //TODO Make it so pieces start with 2 ability slots, which can increase with the INCREASE_CAPACITY ability
+    //TODO Move XP multiplier and capture multiplier inside Piece class and make it variable
+    //TODO Make certain abilities mutually exclusive 
+
 
     //Generic abilities that any piece can have [100-199]
     NONE = -1, // in case player chooses not to apply a new ability
@@ -89,11 +91,12 @@ export enum PieceAbilities {
     // INTIMIDATION = 603, // choose an enemy piece that the queen intimidates, nerfing its range
 
     //King abilities [700-799]
-    SKIP = 700, // can skip a turn
+    SKIP = 700, // can skip a turn by moving on its own square
     // FRIENDLY_FIRE = 701, // can capture friendly pieces, only once
     ON_HORSE = 702, // can also move like a knight
     // AIR_STRIKE = 703, // bomb a 2x2 area anywhere on the board except where the enemy king is, one time use
-    // CASTLING = 704
+    // CASTLING = 704,
+    ON_CAMEL = 705,
 
     // Add disabilities? Negatively effect an enemy piece?
 }
